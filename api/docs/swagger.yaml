@@ -38,6 +38,24 @@ definitions:
       medical_record:
         $ref: '#/definitions/health_analytics.MedicalRecord'
     type: object
+  health_analytics.AddWearableDataRequest:
+    properties:
+      data_type:
+        type: string
+      data_value:
+        type: string
+      device_type:
+        type: string
+      recorded_timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.AddWearableDataResponse:
+    properties:
+      wearableData:
+        $ref: '#/definitions/health_analytics.WearableData'
+    type: object
   health_analytics.DeleteLifestyleDataResponse:
     properties:
       success:
@@ -48,6 +66,40 @@ definitions:
       success:
         type: boolean
     type: object
+  health_analytics.DeleteWearableDataResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  health_analytics.GenerateHealthRecommendationsRequest:
+    properties:
+      description:
+        type: string
+      priority:
+        type: integer
+      recommendation_type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.GenerateHealthRecommendationsResponse:
+    properties:
+      recommendations:
+        $ref: '#/definitions/health_analytics.HealthRecommendation'
+    type: object
+  health_analytics.GetDailyHealthSummaryResponse:
+    properties:
+      description:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      priority:
+        type: integer
+      recommendation_type:
+        type: string
+    type: object
   health_analytics.GetLifestyleDataResponse:
     properties:
       lifestyle_data:
@@ -57,6 +109,48 @@ definitions:
     properties:
       medical_record:
         $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.GetRealtimeHealthMonitoringResponse:
+    properties:
+      description:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      priority:
+        type: integer
+      recommendation_type:
+        type: string
+    type: object
+  health_analytics.GetWearableDataResponse:
+    properties:
+      wearable_data:
+        $ref: '#/definitions/health_analytics.WearableData'
+    type: object
+  health_analytics.GetWeeklyHealthSummaryResponse:
+    properties:
+      health:
+        items:
+          $ref: '#/definitions/health_analytics.HealthRecommendation'
+        type: array
+    type: object
+  health_analytics.HealthRecommendation:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      priority:
+        type: integer
+      recommendation_type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   health_analytics.LifestyleData:
     properties:
@@ -146,6 +240,45 @@ definitions:
     properties:
       success:
         type: boolean
+    type: object
+  health_analytics.UpdateWearableDataRequest:
+    properties:
+      data_type:
+        type: string
+      data_value:
+        type: string
+      device_type:
+        type: string
+      id:
+        type: string
+      recorded_timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.UpdateWearableDataResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  health_analytics.WearableData:
+    properties:
+      created_at:
+        type: string
+      data_type:
+        type: string
+      data_value:
+        type: string
+      device_type:
+        type: string
+      id:
+        type: string
+      recorded_timestamp:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
 host: localhost:50053
 info:
@@ -415,4 +548,228 @@ paths:
       summary: List all medical records for a user
       tags:
       - MedicalRecords
+  /health/monitoring/{user_id}/realtime:
+    get:
+      consumes:
+      - application/json
+      description: Foydalanuvchining real vaqt sog'liq monitoringini qaytaradi.
+      parameters:
+      - description: Foydalanuvchi ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetRealtimeHealthMonitoringResponse'
+        "500":
+          description: 'Xatolik: Ichki server xatosi'
+          schema:
+            type: string
+      summary: Real vaqt sog'liq monitoringi
+      tags:
+      - Health
+  /health/recommendations:
+    post:
+      consumes:
+      - application/json
+      description: Foydalanuvchi uchun sog'liq bo'yicha tavsiyalarni yaratadi.
+      parameters:
+      - description: Tavsiyalar yaratish uchun ma'lumotlar
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.GenerateHealthRecommendationsRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GenerateHealthRecommendationsResponse'
+        "400":
+          description: 'Xatolik: Notog''ri so''rov'
+          schema:
+            type: string
+        "500":
+          description: 'Xatolik: Ichki server xatosi'
+          schema:
+            type: string
+      summary: Sog'liq bo'yicha tavsiyalar yaratish
+      tags:
+      - Health
+  /health/summary/{user_id}/daily/{date}:
+    get:
+      consumes:
+      - application/json
+      description: Foydalanuvchining belgilangan kun uchun sog'liq hisobotini qaytaradi.
+      parameters:
+      - description: Foydalanuvchi ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 'Kun (format: yyyy/mm/dd)'
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetDailyHealthSummaryResponse'
+        "500":
+          description: 'Xatolik: Ichki server xatosi'
+          schema:
+            type: string
+      summary: Kunlik sog'liq hisobotini olish
+      tags:
+      - Health
+  /health/summary/{user_id}/weekly/{start_date}:
+    get:
+      consumes:
+      - application/json
+      description: Foydalanuvchining belgilangan haftalik sog'liq hisobotini qaytaradi.
+      parameters:
+      - description: Foydalanuvchi ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 'Boshlang''ich sana (format: yyyy/mm/dd)'
+        in: path
+        name: start_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetWeeklyHealthSummaryResponse'
+        "500":
+          description: 'Xatolik: Ichki server xatosi'
+          schema:
+            type: string
+      summary: Haftalik sog'liq hisobotini olish
+      tags:
+      - Health
+  /health/wearable-data:
+    post:
+      consumes:
+      - application/json
+      description: Ushbu endpoint yangi kiyiladigan qurilma ma'lumotlarini qo'shadi.
+      parameters:
+      - description: Kiyiladigan qurilma ma'lumotlari
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.AddWearableDataRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.AddWearableDataResponse'
+        "400":
+          description: 'bodydan malumotlarni olishda xatolik: <error_message>'
+          schema:
+            type: string
+        "500":
+          description: 'AddWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      summary: Add Wearable Data
+      tags:
+      - wearable-data
+    put:
+      consumes:
+      - application/json
+      description: Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.
+      parameters:
+      - description: Yangilangan kiyiladigan qurilma ma'lumotlari
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.UpdateWearableDataRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.UpdateWearableDataResponse'
+        "400":
+          description: 'bodydan malumotlarni olishda xatolik: <error_message>'
+          schema:
+            type: string
+        "500":
+          description: 'UpdateWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      summary: Update Wearable Data
+      tags:
+      - wearable-data
+  /health/wearable-data/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini
+        o'chiradi.
+      parameters:
+      - description: Kiyiladigan qurilma ma'lumotlari ID'si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteWearableDataResponse'
+        "500":
+          description: 'DeleteWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      summary: Delete Wearable Data
+      tags:
+      - wearable-data
+    get:
+      consumes:
+      - application/json
+      description: Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
+      parameters:
+      - description: Kiyiladigan qurilma ma'lumotlari ID'si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetWearableDataResponse'
+        "500":
+          description: 'GetWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      summary: Get Wearable Data
+      tags:
+      - wearable-data
 swagger: "2.0"

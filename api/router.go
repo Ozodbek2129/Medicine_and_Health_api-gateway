@@ -39,6 +39,16 @@ func NewRouter(h *handler.Handler) *gin.Engine{
 		health.GET("/lifestyle/:id",h.GetLifestyleData)
 		health.PUT("/lifestyle",h.UpdateLifestyleData)
 		health.DELETE("/lifestyle/:id",h.DeleteLifestyleData)
+
+		health.POST("/wearable-data",h.AddWearableData)
+		health.GET("/wearable-data/:id",h.GetWearableData)
+		health.PUT("/wearable-data",h.UpdateWearableData)
+		health.DELETE("/wearable-data/:id",h.DeleteWearableData)
+
+		health.POST("/recommendations",h.GenerateHealthRecommendations)
+		health.GET("/monitoring/:user_id/realtime",h.GetRealtimeHealthMonitoring)
+		health.GET("/summary/:user_id/daily/:date",h.GetDailyHealthSummary)
+		health.GET("/summary/:user_id/weekly/:start_date",h.GetWeeklyHealthSummary)
 	}
 	return router
 }

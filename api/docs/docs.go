@@ -407,6 +407,344 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/health/monitoring/{user_id}/realtime": {
+            "get": {
+                "description": "Foydalanuvchining real vaqt sog'liq monitoringini qaytaradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Real vaqt sog'liq monitoringi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Foydalanuvchi ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetRealtimeHealthMonitoringResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Xatolik: Ichki server xatosi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/recommendations": {
+            "post": {
+                "description": "Foydalanuvchi uchun sog'liq bo'yicha tavsiyalarni yaratadi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Sog'liq bo'yicha tavsiyalar yaratish",
+                "parameters": [
+                    {
+                        "description": "Tavsiyalar yaratish uchun ma'lumotlar",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GenerateHealthRecommendationsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GenerateHealthRecommendationsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Xatolik: Notog'ri so'rov",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Xatolik: Ichki server xatosi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/summary/{user_id}/daily/{date}": {
+            "get": {
+                "description": "Foydalanuvchining belgilangan kun uchun sog'liq hisobotini qaytaradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Kunlik sog'liq hisobotini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Foydalanuvchi ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kun (format: yyyy/mm/dd)",
+                        "name": "date",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetDailyHealthSummaryResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Xatolik: Ichki server xatosi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/summary/{user_id}/weekly/{start_date}": {
+            "get": {
+                "description": "Foydalanuvchining belgilangan haftalik sog'liq hisobotini qaytaradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Haftalik sog'liq hisobotini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Foydalanuvchi ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Boshlang'ich sana (format: yyyy/mm/dd)",
+                        "name": "start_date",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetWeeklyHealthSummaryResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Xatolik: Ichki server xatosi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/wearable-data": {
+            "put": {
+                "description": "Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Update Wearable Data",
+                "parameters": [
+                    {
+                        "description": "Yangilangan kiyiladigan qurilma ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateWearableDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateWearableDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "bodydan malumotlarni olishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "UpdateWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Ushbu endpoint yangi kiyiladigan qurilma ma'lumotlarini qo'shadi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Add Wearable Data",
+                "parameters": [
+                    {
+                        "description": "Kiyiladigan qurilma ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.AddWearableDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.AddWearableDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "bodydan malumotlarni olishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "AddWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/wearable-data/{id}": {
+            "get": {
+                "description": "Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Get Wearable Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kiyiladigan qurilma ma'lumotlari ID'si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetWearableDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "GetWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini o'chiradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Delete Wearable Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kiyiladigan qurilma ma'lumotlari ID'si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.DeleteWearableDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "DeleteWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -469,6 +807,34 @@ const docTemplate = `{
                 }
             }
         },
+        "health_analytics.AddWearableDataRequest": {
+            "type": "object",
+            "properties": {
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "device_type": {
+                    "type": "string"
+                },
+                "recorded_timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.AddWearableDataResponse": {
+            "type": "object",
+            "properties": {
+                "wearableData": {
+                    "$ref": "#/definitions/health_analytics.WearableData"
+                }
+            }
+        },
         "health_analytics.DeleteLifestyleDataResponse": {
             "type": "object",
             "properties": {
@@ -485,6 +851,59 @@ const docTemplate = `{
                 }
             }
         },
+        "health_analytics.DeleteWearableDataResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "health_analytics.GenerateHealthRecommendationsRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "recommendation_type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.GenerateHealthRecommendationsResponse": {
+            "type": "object",
+            "properties": {
+                "recommendations": {
+                    "$ref": "#/definitions/health_analytics.HealthRecommendation"
+                }
+            }
+        },
+        "health_analytics.GetDailyHealthSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "recommendation_type": {
+                    "type": "string"
+                }
+            }
+        },
         "health_analytics.GetLifestyleDataResponse": {
             "type": "object",
             "properties": {
@@ -498,6 +917,71 @@ const docTemplate = `{
             "properties": {
                 "medical_record": {
                     "$ref": "#/definitions/health_analytics.MedicalRecord"
+                }
+            }
+        },
+        "health_analytics.GetRealtimeHealthMonitoringResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "recommendation_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.GetWearableDataResponse": {
+            "type": "object",
+            "properties": {
+                "wearable_data": {
+                    "$ref": "#/definitions/health_analytics.WearableData"
+                }
+            }
+        },
+        "health_analytics.GetWeeklyHealthSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "health": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/health_analytics.HealthRecommendation"
+                    }
+                }
+            }
+        },
+        "health_analytics.HealthRecommendation": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "recommendation_type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -635,6 +1119,66 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "health_analytics.UpdateWearableDataRequest": {
+            "type": "object",
+            "properties": {
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "device_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recorded_timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.UpdateWearableDataResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "health_analytics.WearableData": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "device_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recorded_timestamp": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         }
