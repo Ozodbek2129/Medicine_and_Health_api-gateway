@@ -1,24 +1,79 @@
 basePath: /
 definitions:
+  health_analytics.AddLifestyleDataRequest:
+    properties:
+      data_type:
+        type: string
+      data_value:
+        type: string
+      recorded_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.AddLifestyleDataResponse:
+    properties:
+      lifestyleData:
+        $ref: '#/definitions/health_analytics.LifestyleData'
+    type: object
   health_analytics.AddMedicalRecordRequest:
     properties:
-      medical_record:
-        $ref: '#/definitions/health_analytics.MedicalRecord'
+      attachments:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      doctor_id:
+        type: string
+      record_date:
+        type: string
+      record_type:
+        type: string
+      user_id:
+        type: string
     type: object
   health_analytics.AddMedicalRecordResponse:
     properties:
       medical_record:
         $ref: '#/definitions/health_analytics.MedicalRecord'
     type: object
+  health_analytics.DeleteLifestyleDataResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   health_analytics.DeleteMedicalRecordResponse:
     properties:
       success:
         type: boolean
     type: object
+  health_analytics.GetLifestyleDataResponse:
+    properties:
+      lifestyle_data:
+        $ref: '#/definitions/health_analytics.LifestyleData'
+    type: object
   health_analytics.GetMedicalRecordResponse:
     properties:
       medical_record:
         $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.LifestyleData:
+    properties:
+      created_at:
+        type: string
+      data_type:
+        type: string
+      data_value:
+        type: string
+      id:
+        type: string
+      recorded_date:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   health_analytics.ListMedicalRecordsResponse:
     properties:
@@ -50,10 +105,42 @@ definitions:
       user_id:
         type: string
     type: object
+  health_analytics.UpdateLifestyleDataRequest:
+    properties:
+      data_type:
+        type: string
+      data_value:
+        type: string
+      id:
+        type: string
+      recorded_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.UpdateLifestyleDataResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   health_analytics.UpdateMedicalRecordRequest:
     properties:
-      medical_record:
-        $ref: '#/definitions/health_analytics.MedicalRecord'
+      attachments:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      doctor_id:
+        type: string
+      id:
+        type: string
+      record_date:
+        type: string
+      record_type:
+        type: string
+      user_id:
+        type: string
     type: object
   health_analytics.UpdateMedicalRecordResponse:
     properties:
@@ -74,6 +161,114 @@ info:
   title: User Service API
   version: "1.0"
 paths:
+  /health/lifestyle:
+    post:
+      consumes:
+      - application/json
+      description: Yangi turmush tarzi ma'lumotlarini qo'shadi
+      parameters:
+      - description: Turmush tarzi ma'lumotlari
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.AddLifestyleDataRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.AddLifestyleDataResponse'
+        "400":
+          description: Noto'g'ri so'rov
+          schema:
+            type: string
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      summary: Turmush tarzi ma'lumotlarini qo'shish
+      tags:
+      - LifestyleData
+    put:
+      consumes:
+      - application/json
+      description: Mavjud turmush tarzi ma'lumotlarini yangilash
+      parameters:
+      - description: Yangilanadigan turmush tarzi ma'lumotlari
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.UpdateLifestyleDataRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.UpdateLifestyleDataResponse'
+        "400":
+          description: Noto'g'ri so'rov
+          schema:
+            type: string
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      summary: Turmush tarzi ma'lumotlarini yangilash
+      tags:
+      - LifestyleData
+  /health/lifestyle/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish
+      parameters:
+      - description: Turmush tarzi ma'lumotlari ID si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteLifestyleDataResponse'
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      summary: Turmush tarzi ma'lumotlarini o'chirish
+      tags:
+      - LifestyleData
+    get:
+      consumes:
+      - application/json
+      description: Turmush tarzi ma'lumotlarini ID bo'yicha olish
+      parameters:
+      - description: Turmush tarzi ma'lumotlari ID si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetLifestyleDataResponse'
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      summary: Turmush tarzi ma'lumotlarini olish
+      tags:
+      - LifestyleData
   /health/medical_records:
     post:
       consumes:

@@ -138,3 +138,108 @@ func (h *Handler) ListMedicalRecords(c *gin.Context){
 	}
 	c.JSON(http.StatusAccepted, resp)
 }
+
+// @Summary Turmush tarzi ma'lumotlarini qo'shish
+// @Description Yangi turmush tarzi ma'lumotlarini qo'shadi
+// @Tags LifestyleData
+// @Accept  json
+// @Produce  json
+// @Param data body health_analytics.AddLifestyleDataRequest true "Turmush tarzi ma'lumotlari"
+// @Success 202 {object} health_analytics.AddLifestyleDataResponse
+// @Failure 400 {object} string "Noto'g'ri so'rov"
+// @Failure 500 {object} string "Ichki server xatoligi"
+// @Router /health/lifestyle [post]
+func (h *Handler) AddLifestyleData(c *gin.Context){
+	req:=pb.AddLifestyleDataRequest{}
+
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.HealthService.AddLifestyleData(c,&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("AddLifestyleData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
+// @Summary Turmush tarzi ma'lumotlarini olish
+// @Description Turmush tarzi ma'lumotlarini ID bo'yicha olish
+// @Tags LifestyleData
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Turmush tarzi ma'lumotlari ID si"
+// @Success 202 {object} health_analytics.GetLifestyleDataResponse
+// @Failure 500 {object} string "Ichki server xatoligi"
+// @Router /health/lifestyle/{id} [get]
+func (h *Handler) GetLifestyleData(c *gin.Context){
+	req:=pb.GetLifestyleDataRequest{
+		Id: c.Param("id"),
+	}
+
+	resp, err := h.HealthService.GetLifestyleData(c,&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GetLifestyleData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
+// @Summary Turmush tarzi ma'lumotlarini yangilash
+// @Description Mavjud turmush tarzi ma'lumotlarini yangilash
+// @Tags LifestyleData
+// @Accept  json
+// @Produce  json
+// @Param data body health_analytics.UpdateLifestyleDataRequest true "Yangilanadigan turmush tarzi ma'lumotlari"
+// @Success 202 {object} health_analytics.UpdateLifestyleDataResponse
+// @Failure 400 {object} string "Noto'g'ri so'rov"
+// @Failure 500 {object} string "Ichki server xatoligi"
+// @Router /health/lifestyle [put]
+func (h *Handler) UpdateLifestyleData(c *gin.Context){
+	req:=pb.UpdateLifestyleDataRequest{}
+
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.HealthService.UpdateLifestyleData(c,&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("UpdateLifestyleData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
+// @Summary Turmush tarzi ma'lumotlarini o'chirish
+// @Description Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish
+// @Tags LifestyleData
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Turmush tarzi ma'lumotlari ID si"
+// @Success 202 {object} health_analytics.DeleteLifestyleDataResponse
+// @Failure 500 {object} string "Ichki server xatoligi"
+// @Router /health/lifestyle/{id} [delete]
+func (h *Handler) DeleteLifestyleData(c *gin.Context){
+	req:=pb.DeleteLifestyleDataRequest{
+		Id: c.Param("id"),
+	}
+
+	resp, err := h.HealthService.DeleteLifestyleData(c,&req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("DeleteLifestyleData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+

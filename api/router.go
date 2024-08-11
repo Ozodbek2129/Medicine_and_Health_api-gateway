@@ -34,6 +34,11 @@ func NewRouter(h *handler.Handler) *gin.Engine{
 		health.PUT("/medical_records",h.UpdateMedicalRecord)
 		health.DELETE("/medical_records/:id",h.DeleteMedicalRecord)
 		health.GET("/medical_records/user/:userId",h.ListMedicalRecords)
+
+		health.POST("/lifestyle",h.AddLifestyleData)
+		health.GET("/lifestyle/:id",h.GetLifestyleData)
+		health.PUT("/lifestyle",h.UpdateLifestyleData)
+		health.DELETE("/lifestyle/:id",h.DeleteLifestyleData)
 	}
 	return router
 }

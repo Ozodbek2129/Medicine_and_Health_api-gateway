@@ -18,6 +18,170 @@
     "host": "localhost:50053",
     "basePath": "/",
     "paths": {
+        "/health/lifestyle": {
+            "put": {
+                "description": "Mavjud turmush tarzi ma'lumotlarini yangilash",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini yangilash",
+                "parameters": [
+                    {
+                        "description": "Yangilanadigan turmush tarzi ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Noto'g'ri so'rov",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Yangi turmush tarzi ma'lumotlarini qo'shadi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini qo'shish",
+                "parameters": [
+                    {
+                        "description": "Turmush tarzi ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.AddLifestyleDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.AddLifestyleDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Noto'g'ri so'rov",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/lifestyle/{id}": {
+            "get": {
+                "description": "Turmush tarzi ma'lumotlarini ID bo'yicha olish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Turmush tarzi ma'lumotlari ID si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetLifestyleDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini o'chirish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Turmush tarzi ma'lumotlari ID si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.DeleteLifestyleDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health/medical_records": {
             "put": {
                 "description": "This endpoint allows you to update an existing medical record.",
@@ -240,11 +404,54 @@
         }
     },
     "definitions": {
+        "health_analytics.AddLifestyleDataRequest": {
+            "type": "object",
+            "properties": {
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "recorded_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.AddLifestyleDataResponse": {
+            "type": "object",
+            "properties": {
+                "lifestyleData": {
+                    "$ref": "#/definitions/health_analytics.LifestyleData"
+                }
+            }
+        },
         "health_analytics.AddMedicalRecordRequest": {
             "type": "object",
             "properties": {
-                "medical_record": {
-                    "$ref": "#/definitions/health_analytics.MedicalRecord"
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "doctor_id": {
+                    "type": "string"
+                },
+                "record_date": {
+                    "type": "string"
+                },
+                "record_type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -256,6 +463,14 @@
                 }
             }
         },
+        "health_analytics.DeleteLifestyleDataResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "health_analytics.DeleteMedicalRecordResponse": {
             "type": "object",
             "properties": {
@@ -264,11 +479,45 @@
                 }
             }
         },
+        "health_analytics.GetLifestyleDataResponse": {
+            "type": "object",
+            "properties": {
+                "lifestyle_data": {
+                    "$ref": "#/definitions/health_analytics.LifestyleData"
+                }
+            }
+        },
         "health_analytics.GetMedicalRecordResponse": {
             "type": "object",
             "properties": {
                 "medical_record": {
                     "$ref": "#/definitions/health_analytics.MedicalRecord"
+                }
+            }
+        },
+        "health_analytics.LifestyleData": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recorded_date": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -318,11 +567,60 @@
                 }
             }
         },
+        "health_analytics.UpdateLifestyleDataRequest": {
+            "type": "object",
+            "properties": {
+                "data_type": {
+                    "type": "string"
+                },
+                "data_value": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recorded_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "health_analytics.UpdateLifestyleDataResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "health_analytics.UpdateMedicalRecordRequest": {
             "type": "object",
             "properties": {
-                "medical_record": {
-                    "$ref": "#/definitions/health_analytics.MedicalRecord"
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "doctor_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "record_date": {
+                    "type": "string"
+                },
+                "record_type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
