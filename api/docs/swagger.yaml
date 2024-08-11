@@ -1,0 +1,223 @@
+basePath: /
+definitions:
+  health_analytics.AddMedicalRecordRequest:
+    properties:
+      medical_record:
+        $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.AddMedicalRecordResponse:
+    properties:
+      medical_record:
+        $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.DeleteMedicalRecordResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  health_analytics.GetMedicalRecordResponse:
+    properties:
+      medical_record:
+        $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.ListMedicalRecordsResponse:
+    properties:
+      medical_records:
+        items:
+          $ref: '#/definitions/health_analytics.MedicalRecord'
+        type: array
+    type: object
+  health_analytics.MedicalRecord:
+    properties:
+      attachments:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      description:
+        type: string
+      doctor_id:
+        type: string
+      id:
+        type: string
+      record_date:
+        type: string
+      record_type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  health_analytics.UpdateMedicalRecordRequest:
+    properties:
+      medical_record:
+        $ref: '#/definitions/health_analytics.MedicalRecord'
+    type: object
+  health_analytics.UpdateMedicalRecordResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+host: localhost:50053
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server for a user service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: User Service API
+  version: "1.0"
+paths:
+  /health/medical_records:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows you to add a new medical record to the system.
+      parameters:
+      - description: Medical Record Data
+        in: body
+        name: medicalRecord
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.AddMedicalRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.AddMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add a new medical record
+      tags:
+      - MedicalRecords
+    put:
+      consumes:
+      - application/json
+      description: This endpoint allows you to update an existing medical record.
+      parameters:
+      - description: Updated Medical Record Data
+        in: body
+        name: medicalRecord
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.UpdateMedicalRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.UpdateMedicalRecordResponse'
+        "400":
+          description: Bad Request"}
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update a medical record
+      tags:
+      - MedicalRecords
+  /health/medical_records/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint allows you to delete a medical record by its ID.
+      parameters:
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete a medical record by ID
+      tags:
+      - MedicalRecords
+    get:
+      consumes:
+      - application/json
+      description: This endpoint allows you to fetch a medical record by its ID.
+      parameters:
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a medical record by ID
+      tags:
+      - MedicalRecords
+  /health/medical_records/user/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint allows you to list all medical records associated
+        with a specific user ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.ListMedicalRecordsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List all medical records for a user
+      tags:
+      - MedicalRecords
+swagger: "2.0"
