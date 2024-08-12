@@ -30,3 +30,8 @@ time=2024-08-12T21:17:05.298+05:00 level=ERROR msg="UpdateWearableData yuborishd
 time=2024-08-12T21:51:02.776+05:00 level=ERROR msg="Error creating Casbin adapter" error="pq: trailing junk after parameter at or near \"$1A\""
 time=2024-08-12T21:55:57.273+05:00 level=ERROR msg="Error creating Casbin adapter" error="pq: trailing junk after parameter at or near \"$1A\""
 time=2024-08-12T22:02:38.423+05:00 level=ERROR msg="Error creating Casbin adapter" error="pq: trailing junk after parameter at or near \"$1A\""
+time=2024-08-13T00:50:25.545+05:00 level=ERROR msg="Error dropping Casbin database" error="pq: database \"casbin\" is being accessed by other users"
+time=2024-08-13T00:50:55.066+05:00 level=ERROR msg="Error dropping Casbin database" error="pq: database \"casbin\" is being accessed by other users"
+time=2024-08-13T00:54:27.076+05:00 level=ERROR msg="GenerateHealthRecommendationsId yuborishda xatolik: rpc error: code = Unknown desc = NotFound%!(EXTRA string=Bunday id yoki deleted_at '0' bo'lgan hujjat topilmadi)"
+time=2024-08-13T00:54:53.218+05:00 level=ERROR msg="GenerateHealthRecommendationsId yuborishda xatolik: rpc error: code = Unknown desc = NotFound%!(EXTRA string=Bunday id yoki deleted_at '0' bo'lgan hujjat topilmadi)"
+time=2024-08-13T00:57:07.935+05:00 level=ERROR msg="GenerateHealthRecommendationsId yuborishda xatolik: rpc error: code = Unknown desc = NotFound%!(EXTRA string=Bunday id yoki deleted_at '0' bo'lgan hujjat topilmadi)"

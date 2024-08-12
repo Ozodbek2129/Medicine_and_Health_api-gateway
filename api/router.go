@@ -57,6 +57,7 @@ func NewRouter(h *handler.Handler) *gin.Engine {
 		health.DELETE("/wearable-dataDel/:id", h.DeleteWearableData)
 
 		health.POST("/recommendationsAdd", h.GenerateHealthRecommendations)
+		health.GET("/recommendations/:id",h.GenerateHealthRecommendationsId)
 		health.GET("/monitoring/:user_id/realtime", h.GetRealtimeHealthMonitoring)
 		health.GET("/summary/:user_id/daily", h.GetDailyHealthSummary)
 		health.GET("/summary/:user_id/weekly   ", h.GetWeeklyHealthSummary)

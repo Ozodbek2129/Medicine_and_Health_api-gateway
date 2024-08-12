@@ -544,6 +544,30 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 	c.JSON(http.StatusAccepted, resp)
 }
 
+// @Summary Generate Health Recommendations by ID
+// @Description Ushbu endpoint berilgan ID bo'yicha o'chirilmagan (deleted_at "0") sog'liq tavsiyalarini oladi.
+// @Tags Health
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path string true "Health Recommendation ID"
+// @Success 202 {object} health_analytics.GenerateHealthRecommendationsIdResponse
+// @Failure 500 {object} string "Internal Server Error"
+// @Router /health/recommendations/{id} [get]
+func (h *Handler) GenerateHealthRecommendationsId(c *gin.Context){
+	req:=pb.GenerateHealthRecommendationsIdRequest{
+		Id: c.Param("id"),
+	}
+
+	resp, err := h.HealthService.GenerateHealthRecommendationsId(c, &req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GenerateHealthRecommendationsId yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
 // @Summary      Real vaqt sog'liq monitoringi
 // @Description  Foydalanuvchining real vaqt sog'liq monitoringini qaytaradi.
 // @Tags         Health

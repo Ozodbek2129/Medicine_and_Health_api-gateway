@@ -1,6 +1,7 @@
 package casbin
 
 import (
+	"database/sql"
 	"fmt"
 	"log/slog"
 
@@ -17,19 +18,19 @@ const (
 )
 
 func CasbinEnforcer(logger *slog.Logger) (*casbin.Enforcer, error) {
-	// connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=disable", host, port, username, password)
-	// db, err := sql.Open("postgres", connStr)
-	// if err != nil {
-	// 	logger.Error("Error connecting to database", "error", err.Error())
-	// 	return nil, err
-	// }
-	// defer db.Close()
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=disable", host, port, username, password)
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		logger.Error("Error connecting to database", "error", err.Error())
+		return nil, err
+	}
+	defer db.Close()
 
-	// _, err = db.Exec("DROP DATABASE IF EXISTS casbin")
-	// if err != nil {
-	// 	logger.Error("Error dropping Casbin database", "error", err.Error())
-	// 	return nil, err
-	// }
+	_, err = db.Exec("DROP DATABASE IF EXISTS casbin")
+	if err != nil {
+		logger.Error("Error dropping Casbin database", "error", err.Error())
+		return nil, err
+	}
 
 	adapter, err := xormadapter.NewAdapter("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", host, port, username, dbname, password))
 	if err != nil {
@@ -78,6 +79,10 @@ func CasbinEnforcer(logger *slog.Logger) (*casbin.Enforcer, error) {
 		{"patient", "/health/wearable-dataDel/:id", "DELETE"},
 
 		{"doctor", "/health/recommendationsAdd", "POST"},
+		{"doctor", "/health/recommendations/:id", "GET"},
+		{"admin", "/health/recommendations/:id", "GET"},
+
+		{"patient", "/health/recommendations/:id", "GET"},
 
 		{"patient", "/health/monitoring/:user_id/realtime", "GET"},
 		{"patient", "/health/summary/:user_id/daily", "GET"},

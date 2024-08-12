@@ -560,6 +560,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/health/recommendations/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ushbu endpoint berilgan ID bo'yicha o'chirilmagan (deleted_at \"0\") sog'liq tavsiyalarini oladi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Generate Health Recommendations by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Health Recommendation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GenerateHealthRecommendationsIdResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health/recommendationsAdd": {
             "post": {
                 "security": [
@@ -1065,6 +1108,14 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "health_analytics.GenerateHealthRecommendationsIdResponse": {
+            "type": "object",
+            "properties": {
+                "recommendations": {
+                    "$ref": "#/definitions/health_analytics.HealthRecommendation"
                 }
             }
         },
