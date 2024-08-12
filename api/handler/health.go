@@ -2,6 +2,7 @@ package handler
 
 import (
 	pb "api-gateway/genproto/health_analytics"
+	pbu "api-gateway/genproto/user"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -29,7 +30,24 @@ func (h *Handler) AddMedicalRecord(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.HealthService.AddMedicalRecord(c,&req)
+	req1 := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	resp1, err := h.UserService.IdCheck(c, &req1)
+	if err!=nil{
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !resp1.B {
+		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+		return
+	}
+
+	resp, err := h.HealthService.AddMedicalRecord(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("Failed to add medical record error %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -48,12 +66,12 @@ func (h *Handler) AddMedicalRecord(c *gin.Context) {
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /health/medical_records/{id} [get]
-func (h *Handler) GetMedicalRecord(c *gin.Context){
+func (h *Handler) GetMedicalRecord(c *gin.Context) {
 	req := pb.GetMedicalRecordRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.GetMedicalRecord(c,&req)
+	resp, err := h.HealthService.GetMedicalRecord(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("HealthService yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -72,7 +90,7 @@ func (h *Handler) GetMedicalRecord(c *gin.Context){
 // @Failure 400 {object} string "Bad Request"}
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /health/medical_records [put]
-func (h *Handler) UpdateMedicalRecord(c *gin.Context){
+func (h *Handler) UpdateMedicalRecord(c *gin.Context) {
 	req := pb.UpdateMedicalRecordRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
@@ -82,7 +100,7 @@ func (h *Handler) UpdateMedicalRecord(c *gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.UpdateMedicalRecord(c,&req)
+	resp, err := h.HealthService.UpdateMedicalRecord(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("UpdateMedicalRecord yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -101,12 +119,12 @@ func (h *Handler) UpdateMedicalRecord(c *gin.Context){
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /health/medical_records/{id} [delete]
-func (h *Handler) DeleteMedicalRecord(c *gin.Context){
+func (h *Handler) DeleteMedicalRecord(c *gin.Context) {
 	req := pb.DeleteMedicalRecordRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.DeleteMedicalRecord(c,&req)
+	resp, err := h.HealthService.DeleteMedicalRecord(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("DeleteMedicalRecord yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -125,12 +143,12 @@ func (h *Handler) DeleteMedicalRecord(c *gin.Context){
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /health/medical_records/user/{userId} [get]
-func (h *Handler) ListMedicalRecords(c *gin.Context){
+func (h *Handler) ListMedicalRecords(c *gin.Context) {
 	req := pb.ListMedicalRecordsRequest{
 		UserId: c.Param("userId"),
 	}
 
-	resp, err := h.HealthService.ListMedicalRecords(c,&req)
+	resp, err := h.HealthService.ListMedicalRecords(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("ListMedicalRecords yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -149,8 +167,8 @@ func (h *Handler) ListMedicalRecords(c *gin.Context){
 // @Failure 400 {object} string "Noto'g'ri so'rov"
 // @Failure 500 {object} string "Ichki server xatoligi"
 // @Router /health/lifestyle [post]
-func (h *Handler) AddLifestyleData(c *gin.Context){
-	req:=pb.AddLifestyleDataRequest{}
+func (h *Handler) AddLifestyleData(c *gin.Context) {
+	req := pb.AddLifestyleDataRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -159,7 +177,24 @@ func (h *Handler) AddLifestyleData(c *gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.AddLifestyleData(c,&req)
+	req1 := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	resp1, err := h.UserService.IdCheck(c, &req1)
+	if err!=nil{
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !resp1.B {
+		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+		return
+	}
+
+	resp, err := h.HealthService.AddLifestyleData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("AddLifestyleData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -177,12 +212,12 @@ func (h *Handler) AddLifestyleData(c *gin.Context){
 // @Success 202 {object} health_analytics.GetLifestyleDataResponse
 // @Failure 500 {object} string "Ichki server xatoligi"
 // @Router /health/lifestyle/{id} [get]
-func (h *Handler) GetLifestyleData(c *gin.Context){
-	req:=pb.GetLifestyleDataRequest{
+func (h *Handler) GetLifestyleData(c *gin.Context) {
+	req := pb.GetLifestyleDataRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.GetLifestyleData(c,&req)
+	resp, err := h.HealthService.GetLifestyleData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GetLifestyleData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -201,8 +236,8 @@ func (h *Handler) GetLifestyleData(c *gin.Context){
 // @Failure 400 {object} string "Noto'g'ri so'rov"
 // @Failure 500 {object} string "Ichki server xatoligi"
 // @Router /health/lifestyle [put]
-func (h *Handler) UpdateLifestyleData(c *gin.Context){
-	req:=pb.UpdateLifestyleDataRequest{}
+func (h *Handler) UpdateLifestyleData(c *gin.Context) {
+	req := pb.UpdateLifestyleDataRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -211,7 +246,7 @@ func (h *Handler) UpdateLifestyleData(c *gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.UpdateLifestyleData(c,&req)
+	resp, err := h.HealthService.UpdateLifestyleData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("UpdateLifestyleData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -229,12 +264,12 @@ func (h *Handler) UpdateLifestyleData(c *gin.Context){
 // @Success 202 {object} health_analytics.DeleteLifestyleDataResponse
 // @Failure 500 {object} string "Ichki server xatoligi"
 // @Router /health/lifestyle/{id} [delete]
-func (h *Handler) DeleteLifestyleData(c *gin.Context){
-	req:=pb.DeleteLifestyleDataRequest{
+func (h *Handler) DeleteLifestyleData(c *gin.Context) {
+	req := pb.DeleteLifestyleDataRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.DeleteLifestyleData(c,&req)
+	resp, err := h.HealthService.DeleteLifestyleData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("DeleteLifestyleData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -243,18 +278,18 @@ func (h *Handler) DeleteLifestyleData(c *gin.Context){
 	c.JSON(http.StatusAccepted, resp)
 }
 
-//	@Summary      Add Wearable Data
-//	@Description  Ushbu endpoint yangi kiyiladigan qurilma ma'lumotlarini qo'shadi.
-//	@Tags         wearable-data
-//	@Accept       json
-//	@Produce      json
-//	@Param        data  body  health_analytics.AddWearableDataRequest  true  "Kiyiladigan qurilma ma'lumotlari"
-//	@Success      202   {object}  health_analytics.AddWearableDataResponse
-//	@Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
-//	@Failure      500   {object}  string "AddWearableData yuborishda xatolik: <error_message>"
-//	@Router       /health/wearable-data [post]
-func (h *Handler) AddWearableData(c *gin.Context){
-	req:=pb.AddWearableDataRequest{}
+// @Summary      Add Wearable Data
+// @Description  Ushbu endpoint yangi kiyiladigan qurilma ma'lumotlarini qo'shadi.
+// @Tags         wearable-data
+// @Accept       json
+// @Produce      json
+// @Param        data  body  health_analytics.AddWearableDataRequest  true  "Kiyiladigan qurilma ma'lumotlari"
+// @Success      202   {object}  health_analytics.AddWearableDataResponse
+// @Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
+// @Failure      500   {object}  string "AddWearableData yuborishda xatolik: <error_message>"
+// @Router       /health/wearable-data [post]
+func (h *Handler) AddWearableData(c *gin.Context) {
+	req := pb.AddWearableDataRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -263,7 +298,24 @@ func (h *Handler) AddWearableData(c *gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.AddWearableData(c,&req)
+	req1 := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	resp1, err := h.UserService.IdCheck(c, &req1)
+	if err!=nil{
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !resp1.B {
+		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+		return
+	}
+
+	resp, err := h.HealthService.AddWearableData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("AddWearableData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -272,21 +324,21 @@ func (h *Handler) AddWearableData(c *gin.Context){
 	c.JSON(http.StatusAccepted, resp)
 }
 
-//	@Summary      Get Wearable Data
-//	@Description  Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
-//	@Tags         wearable-data
-//	@Accept       json
-//	@Produce      json
-//	@Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
-//	@Success      202   {object}  health_analytics.GetWearableDataResponse
-//	@Failure      500   {object}  string "GetWearableData yuborishda xatolik: <error_message>"
-//	@Router       /health/wearable-data/{id} [get]
-func (h *Handler) GetWearableData(c *gin.Context){
-	req:=pb.GetWearableDataRequest{
+// @Summary      Get Wearable Data
+// @Description  Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
+// @Tags         wearable-data
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
+// @Success      202   {object}  health_analytics.GetWearableDataResponse
+// @Failure      500   {object}  string "GetWearableData yuborishda xatolik: <error_message>"
+// @Router       /health/wearable-data/{id} [get]
+func (h *Handler) GetWearableData(c *gin.Context) {
+	req := pb.GetWearableDataRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.GetWearableData(c,&req)
+	resp, err := h.HealthService.GetWearableData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GetWearableData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -295,18 +347,18 @@ func (h *Handler) GetWearableData(c *gin.Context){
 	c.JSON(http.StatusAccepted, resp)
 }
 
-//	@Summary      Update Wearable Data
-//	@Description  Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.
-//	@Tags         wearable-data
-//	@Accept       json
-//	@Produce      json
-//	@Param        data  body  health_analytics.UpdateWearableDataRequest  true  "Yangilangan kiyiladigan qurilma ma'lumotlari"
-//	@Success      202   {object}  health_analytics.UpdateWearableDataResponse
-//	@Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
-//	@Failure      500   {object}  string "UpdateWearableData yuborishda xatolik: <error_message>"
-//	@Router       /health/wearable-data [put]
-func (h *Handler) UpdateWearableData(c*gin.Context){
-	req:=pb.UpdateWearableDataRequest{}
+// @Summary      Update Wearable Data
+// @Description  Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.
+// @Tags         wearable-data
+// @Accept       json
+// @Produce      json
+// @Param        data  body  health_analytics.UpdateWearableDataRequest  true  "Yangilangan kiyiladigan qurilma ma'lumotlari"
+// @Success      202   {object}  health_analytics.UpdateWearableDataResponse
+// @Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
+// @Failure      500   {object}  string "UpdateWearableData yuborishda xatolik: <error_message>"
+// @Router       /health/wearable-data [put]
+func (h *Handler) UpdateWearableData(c *gin.Context) {
+	req := pb.UpdateWearableDataRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -315,7 +367,7 @@ func (h *Handler) UpdateWearableData(c*gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.UpdateWearableData(c,&req)
+	resp, err := h.HealthService.UpdateWearableData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("UpdateWearableData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -324,21 +376,21 @@ func (h *Handler) UpdateWearableData(c*gin.Context){
 	c.JSON(http.StatusAccepted, resp)
 }
 
-//	@Summary      Delete Wearable Data
-//	@Description  Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini o'chiradi.
-//	@Tags         wearable-data
-//	@Accept       json
-//	@Produce      json
-//	@Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
-//	@Success      202   {object}  health_analytics.DeleteWearableDataResponse
-//	@Failure      500   {object}  string "DeleteWearableData yuborishda xatolik: <error_message>"
-//	@Router       /health/wearable-data/{id} [delete]
-func (h *Handler) DeleteWearableData(c *gin.Context){
-	req:=pb.DeleteWearableDataRequest{
+// @Summary      Delete Wearable Data
+// @Description  Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini o'chiradi.
+// @Tags         wearable-data
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
+// @Success      202   {object}  health_analytics.DeleteWearableDataResponse
+// @Failure      500   {object}  string "DeleteWearableData yuborishda xatolik: <error_message>"
+// @Router       /health/wearable-data/{id} [delete]
+func (h *Handler) DeleteWearableData(c *gin.Context) {
+	req := pb.DeleteWearableDataRequest{
 		Id: c.Param("id"),
 	}
 
-	resp, err := h.HealthService.DeleteWearableData(c,&req)
+	resp, err := h.HealthService.DeleteWearableData(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("DeleteWearableData yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -357,8 +409,8 @@ func (h *Handler) DeleteWearableData(c *gin.Context){
 // @Failure      400  {object}  string  "Xatolik: Notog'ri so'rov"
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
 // @Router       /health/recommendations [post]
-func (h *Handler) GenerateHealthRecommendations(c *gin.Context){
-	req:=pb.GenerateHealthRecommendationsRequest{}
+func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
+	req := pb.GenerateHealthRecommendationsRequest{}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -367,7 +419,24 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context){
 		return
 	}
 
-	resp, err := h.HealthService.GenerateHealthRecommendations(c,&req)
+	req1 := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	resp1, err := h.UserService.IdCheck(c, &req1)
+	if err!=nil{
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !resp1.B {
+		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+		return
+	}
+
+	resp, err := h.HealthService.GenerateHealthRecommendations(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GenerateHealthRecommendations yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -385,18 +454,37 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context){
 // @Success      202  {object}  health_analytics.GetRealtimeHealthMonitoringResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
 // @Router       /health/monitoring/{user_id}/realtime [get]
-func (h *Handler) GetRealtimeHealthMonitoring(c *gin.Context){
-	req:=pb.GetRealtimeHealthMonitoringRequest{
+func (h *Handler) GetRealtimeHealthMonitoring(c *gin.Context) {
+	req := pb.GetRealtimeHealthMonitoringRequest{
 		UserId: c.Param("user_id"),
 	}
 
-	resp, err := h.HealthService.GetRealtimeHealthMonitoring(c,&req)
+	requ := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	respUser, err := h.UserService.GetByUserId(c, &requ)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GetByUserId yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.HealthService.GetRealtimeHealthMonitoring(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GetRealtimeHealthMonitoring yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)
+
+	res := &pb.GetRealtimeHealthMonitoringResponse{
+		FirstName:          respUser.FirstName,
+		LastName:           respUser.LastName,
+		RecommendationType: resp.RecommendationType,
+		Description:        resp.Description,
+		Priority:           resp.Priority,
+	}
+	c.JSON(http.StatusAccepted, res)
 }
 
 // @Summary      Kunlik sog'liq hisobotini olish
@@ -409,19 +497,39 @@ func (h *Handler) GetRealtimeHealthMonitoring(c *gin.Context){
 // @Success      202  {object}  health_analytics.GetDailyHealthSummaryResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
 // @Router       /health/summary/{user_id}/daily/{date} [get]
-func (h *Handler) GetDailyHealthSummary(c *gin.Context){
-	req:=pb.GetDailyHealthSummaryRequest{
+func (h *Handler) GetDailyHealthSummary(c *gin.Context) {
+	fmt.Println("sdfghjkl;")
+	req := pb.GetDailyHealthSummaryRequest{
 		UserId: c.Param("user_id"),
-		Date: c.Param("date"),
+		Date:   c.Param("date"),
 	}
 
-	resp, err := h.HealthService.GetDailyHealthSummary(c,&req)
+	requ := pbu.UserId{
+		Userid: req.UserId,
+	}
+
+	respUser, err := h.UserService.GetByUserId(c, &requ)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GetByUserId yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.HealthService.GetDailyHealthSummary(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GetDailyHealthSummary yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)
+
+	res := &pb.GetDailyHealthSummaryResponse{
+		FirstName:          respUser.FirstName,
+		LastName:           respUser.LastName,
+		RecommendationType: resp.RecommendationType,
+		Description:        resp.Description,
+		Priority:           resp.Priority,
+	}
+	c.JSON(http.StatusAccepted, res)
 }
 
 // @Summary      Haftalik sog'liq hisobotini olish
@@ -434,13 +542,13 @@ func (h *Handler) GetDailyHealthSummary(c *gin.Context){
 // @Success      202  {object}  health_analytics.GetWeeklyHealthSummaryResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
 // @Router       /health/summary/{user_id}/weekly/{start_date} [get]
-func (h *Handler) GetWeeklyHealthSummary(c *gin.Context){
-	req:=pb.GetWeeklyHealthSummaryRequest{
-		UserId: c.Param("user_id"),
+func (h *Handler) GetWeeklyHealthSummary(c *gin.Context) {
+	req := pb.GetWeeklyHealthSummaryRequest{
+		UserId:    c.Param("user_id"),
 		StartDate: c.Param("start_date"),
 	}
 
-	resp, err := h.HealthService.GetWeeklyHealthSummary(c,&req)
+	resp, err := h.HealthService.GetWeeklyHealthSummary(c, &req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("GetWeeklyHealthSummary yuborishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
