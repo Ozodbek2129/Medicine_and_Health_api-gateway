@@ -3,6 +3,7 @@ package middleware
 import (
 	"api-gateway/api/auth"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
@@ -16,12 +17,14 @@ type casbinPermission struct {
 func Check(c *gin.Context) {
 
 	accessToken := c.GetHeader("Authorization")
+	fmt.Println(1)
 	if accessToken == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "Authorization is required",
 		})
 		return
 	}
+	fmt.Println(2)
 
 	_, err := auth.ValidateAccessToken(accessToken)
 	if err != nil {
@@ -30,18 +33,23 @@ func Check(c *gin.Context) {
 		})
 		return
 	}
+	fmt.Println(3)
 	c.Next()
 }
 
 func (casb *casbinPermission) GetRole(c *gin.Context) (string, int) {
-	token := c.GetHeader("Authorization")
+	token := c.GetHeader("Authorization")  
+	fmt.Println(4)
 	if token == "" {
 		return "unauthorized", http.StatusUnauthorized
 	}
+	fmt.Println(5)
+
 	_, role, _, _, _, _, _, err := auth.GetUserInfoFromAccessToken(token)
 	if err != nil {
 		return "error while reding role", 500
 	}
+	fmt.Println(6)
 
 	return role, 0
 }
@@ -50,10 +58,13 @@ func (casb *casbinPermission) CheckPermission(c *gin.Context) (bool, error) {
 
 	act := c.Request.Method
 	sub, status := casb.GetRole(c)
+	fmt.Println(7)
+
 	if status != 0 {
 		return false, errors.New("error in get role")
 	}
 	obj := c.FullPath()
+	fmt.Println(8)
 
 	ok, err := casb.enforcer.Enforce(sub, obj, act)
 	if err != nil {
@@ -63,6 +74,8 @@ func (casb *casbinPermission) CheckPermission(c *gin.Context) (bool, error) {
 		c.Abort()
 		return false, err
 	}
+	fmt.Println(9)
+
 	return ok, nil
 }
 
@@ -72,6 +85,8 @@ func CheckPermissionMiddleware(enf *casbin.Enforcer) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		fmt.Println(10)
+
 		result, err := casbHandler.CheckPermission(c)
 
 		if err != nil {

@@ -594,15 +594,15 @@ func (h *Handler) GetRealtimeHealthMonitoring(c *gin.Context) {
 // @Produce      json
 // @Security ApiKeyAuth
 // @Param        user_id  path  string  true  "Foydalanuvchi ID"
-// @Param        date     path  string  true  "Kun (format: yyyy/mm/dd)"
+// @Param        date     query  string  true  "Kun (format: yyyy/mm/dd)"
 // @Success      202  {object}  health_analytics.GetDailyHealthSummaryResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
-// @Router       /health/summary/{user_id}/daily/{date} [get]
+// @Router       /health/summary/{user_id}/daily [get]
 func (h *Handler) GetDailyHealthSummary(c *gin.Context) {
 	fmt.Println("sdfghjkl;")
 	req := pb.GetDailyHealthSummaryRequest{
 		UserId: c.Param("user_id"),
-		Date:   c.Param("date"),
+		Date:   c.Query("date"),
 	}
 
 	requ := pbu.UserId{
@@ -640,14 +640,14 @@ func (h *Handler) GetDailyHealthSummary(c *gin.Context) {
 // @Produce      json
 // @Security ApiKeyAuth
 // @Param        user_id    path  string  true  "Foydalanuvchi ID"
-// @Param        start_date path  string  true  "Boshlang'ich sana (format: yyyy/mm/dd)"
+// @Param        start_date query  string  true  "Boshlang'ich sana (format: yyyy/mm/dd)"
 // @Success      202  {object}  health_analytics.GetWeeklyHealthSummaryResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
-// @Router       /health/summary/{user_id}/weekly/{start_date} [get]
+// @Router       /health/summary/{user_id}/weekly [get]
 func (h *Handler) GetWeeklyHealthSummary(c *gin.Context) {
 	req := pb.GetWeeklyHealthSummaryRequest{
 		UserId:    c.Param("user_id"),
-		StartDate: c.Param("start_date"),
+		StartDate: c.Query("start_date"),
 	}
 
 	resp, err := h.HealthService.GetWeeklyHealthSummary(c, &req)
@@ -656,5 +656,5 @@ func (h *Handler) GetWeeklyHealthSummary(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)
+	c.JSON(http.StatusAccepted, resp)  
 }

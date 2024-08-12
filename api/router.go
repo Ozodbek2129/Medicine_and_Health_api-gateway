@@ -33,6 +33,7 @@ func NewRouter(h *handler.Handler) *gin.Engine {
 	router := gin.Default()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(middleware.Check)
+
 	router.Use(middleware.CheckPermissionMiddleware(h.Enforcer))
 
 	health := router.Group("/health")
@@ -57,8 +58,8 @@ func NewRouter(h *handler.Handler) *gin.Engine {
 
 		health.POST("/recommendationsAdd", h.GenerateHealthRecommendations)
 		health.GET("/monitoring/:user_id/realtime", h.GetRealtimeHealthMonitoring)
-		health.GET("/summary/:user_id/daily/:date", h.GetDailyHealthSummary)
-		health.GET("/summary/:user_id/weekly/:start_date", h.GetWeeklyHealthSummary)
+		health.GET("/summary/:user_id/daily", h.GetDailyHealthSummary)
+		health.GET("/summary/:user_id/weekly   ", h.GetWeeklyHealthSummary)
 	}
 	return router
 }

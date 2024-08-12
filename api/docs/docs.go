@@ -611,7 +611,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/summary/{user_id}/daily/{date}": {
+        "/health/summary/{user_id}/daily": {
             "get": {
                 "security": [
                     {
@@ -641,7 +641,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Kun (format: yyyy/mm/dd)",
                         "name": "date",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -661,7 +661,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/summary/{user_id}/weekly/{start_date}": {
+        "/health/summary/{user_id}/weekly": {
             "get": {
                 "security": [
                     {
@@ -691,7 +691,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Boshlang'ich sana (format: yyyy/mm/dd)",
                         "name": "start_date",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],

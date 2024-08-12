@@ -681,7 +681,7 @@ paths:
       summary: Sog'liq bo'yicha tavsiyalar yaratish
       tags:
       - Health
-  /health/summary/{user_id}/daily/{date}:
+  /health/summary/{user_id}/daily:
     get:
       consumes:
       - application/json
@@ -693,7 +693,7 @@ paths:
         required: true
         type: string
       - description: 'Kun (format: yyyy/mm/dd)'
-        in: path
+        in: query
         name: date
         required: true
         type: string
@@ -713,7 +713,7 @@ paths:
       summary: Kunlik sog'liq hisobotini olish
       tags:
       - Health
-  /health/summary/{user_id}/weekly/{start_date}:
+  /health/summary/{user_id}/weekly:
     get:
       consumes:
       - application/json
@@ -725,7 +725,7 @@ paths:
         required: true
         type: string
       - description: 'Boshlang''ich sana (format: yyyy/mm/dd)'
-        in: path
+        in: query
         name: start_date
         required: true
         type: string
