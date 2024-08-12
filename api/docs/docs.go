@@ -24,9 +24,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health/lifestyle": {
-            "put": {
-                "description": "Mavjud turmush tarzi ma'lumotlarini yangilash",
+        "/health/getalllifestyledata/{limit}/{page}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Foydalanuvchilarning barcha lifestyle (turmush tarzi) ma'lumotlarini olish uchun ishlatiladi.",
                 "consumes": [
                     "application/json"
                 ],
@@ -36,40 +41,52 @@ const docTemplate = `{
                 "tags": [
                     "LifestyleData"
                 ],
-                "summary": "Turmush tarzi ma'lumotlarini yangilash",
+                "summary": "Get All Lifestyle Data",
                 "parameters": [
                     {
-                        "description": "Yangilanadigan turmush tarzi ma'lumotlari",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataRequest"
-                        }
+                        "type": "integer",
+                        "description": "Cheklov (sahifadagi yozuvlar soni)",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "202": {
-                        "description": "Accepted",
+                        "description": "Ma'lumotlar muvaffaqiyatli qaytarildi",
                         "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataResponse"
+                            "$ref": "#/definitions/health_analytics.GetAllLifestyleDataResponse"
                         }
                     },
                     "400": {
-                        "description": "Noto'g'ri so'rov",
+                        "description": "Invalid limit or page parameter\" \"Noto'g'ri limit yoki sahifa parametri",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Ichki server xatoligi",
+                        "description": "Internal Server Error\" \"Serverda xatolik yuz berdi",
                         "schema": {
                             "type": "string"
                         }
                     }
                 }
-            },
+            }
+        },
+        "/health/lifestyleAdd": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Yangi turmush tarzi ma'lumotlarini qo'shadi",
                 "consumes": [
                     "application/json"
@@ -114,44 +131,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/lifestyle/{id}": {
-            "get": {
-                "description": "Turmush tarzi ma'lumotlarini ID bo'yicha olish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "LifestyleData"
-                ],
-                "summary": "Turmush tarzi ma'lumotlarini olish",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Turmush tarzi ma'lumotlari ID si",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.GetLifestyleDataResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Ichki server xatoligi",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
+        "/health/lifestyleDel/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish",
                 "consumes": [
                     "application/json"
@@ -188,9 +174,108 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/medical_records": {
+        "/health/lifestyleGet/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Turmush tarzi ma'lumotlarini ID bo'yicha olish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Turmush tarzi ma'lumotlari ID si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetLifestyleDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/lifestyleUp": {
             "put": {
-                "description": "This endpoint allows you to update an existing medical record.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mavjud turmush tarzi ma'lumotlarini yangilash",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LifestyleData"
+                ],
+                "summary": "Turmush tarzi ma'lumotlarini yangilash",
+                "parameters": [
+                    {
+                        "description": "Yangilanadigan turmush tarzi ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateLifestyleDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Noto'g'ri so'rov",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ichki server xatoligi",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/medical_records/user/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint allows you to list all medical records associated with a specific user ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -200,27 +285,25 @@ const docTemplate = `{
                 "tags": [
                     "MedicalRecords"
                 ],
-                "summary": "Update a medical record",
+                "summary": "List all medical records for a user",
                 "parameters": [
                     {
-                        "description": "Updated Medical Record Data",
-                        "name": "medicalRecord",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateMedicalRecordRequest"
-                        }
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateMedicalRecordResponse"
+                            "$ref": "#/definitions/health_analytics.ListMedicalRecordsResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request\"}",
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -232,8 +315,64 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/health/medical_records/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint allows you to delete a medical record by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MedicalRecords"
+                ],
+                "summary": "Delete a medical record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Medical Record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.DeleteMedicalRecordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/medical_recordsAdd": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "This endpoint allows you to add a new medical record to the system.",
                 "consumes": [
                     "application/json"
@@ -278,52 +417,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/medical_records/user/{userId}": {
+        "/health/medical_recordsGet/{id}": {
             "get": {
-                "description": "This endpoint allows you to list all medical records associated with a specific user ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "MedicalRecords"
-                ],
-                "summary": "List all medical records for a user",
-                "parameters": [
+                "security": [
                     {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
+                        "ApiKeyAuth": []
                     }
                 ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.ListMedicalRecordsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/health/medical_records/{id}": {
-            "get": {
                 "description": "This endpoint allows you to fetch a medical record by its ID.",
                 "consumes": [
                     "application/json"
@@ -364,9 +464,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "This endpoint allows you to delete a medical record by its ID.",
+            }
+        },
+        "/health/medical_recordsUp": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint allows you to update an existing medical record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -376,25 +483,27 @@ const docTemplate = `{
                 "tags": [
                     "MedicalRecords"
                 ],
-                "summary": "Delete a medical record by ID",
+                "summary": "Update a medical record",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Medical Record ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Updated Medical Record Data",
+                        "name": "medicalRecord",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateMedicalRecordRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/health_analytics.DeleteMedicalRecordResponse"
+                            "$ref": "#/definitions/health_analytics.UpdateMedicalRecordResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -410,6 +519,11 @@ const docTemplate = `{
         },
         "/health/monitoring/{user_id}/realtime": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchining real vaqt sog'liq monitoringini qaytaradi.",
                 "consumes": [
                     "application/json"
@@ -446,8 +560,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/recommendations": {
+        "/health/recommendationsAdd": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchi uchun sog'liq bo'yicha tavsiyalarni yaratadi.",
                 "consumes": [
                     "application/json"
@@ -494,6 +613,11 @@ const docTemplate = `{
         },
         "/health/summary/{user_id}/daily/{date}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchining belgilangan kun uchun sog'liq hisobotini qaytaradi.",
                 "consumes": [
                     "application/json"
@@ -539,6 +663,11 @@ const docTemplate = `{
         },
         "/health/summary/{user_id}/weekly/{start_date}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchining belgilangan haftalik sog'liq hisobotini qaytaradi.",
                 "consumes": [
                     "application/json"
@@ -582,52 +711,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/wearable-data": {
-            "put": {
-                "description": "Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "wearable-data"
-                ],
-                "summary": "Update Wearable Data",
-                "parameters": [
-                    {
-                        "description": "Yangilangan kiyiladigan qurilma ma'lumotlari",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateWearableDataRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.UpdateWearableDataResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "bodydan malumotlarni olishda xatolik: \u003cerror_message\u003e",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "UpdateWearableData yuborishda xatolik: \u003cerror_message\u003e",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
+        "/health/wearable-dataAdd": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Ushbu endpoint yangi kiyiladigan qurilma ma'lumotlarini qo'shadi.",
                 "consumes": [
                     "application/json"
@@ -672,8 +762,56 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/wearable-data/{id}": {
+        "/health/wearable-dataDel/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini o'chiradi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Delete Wearable Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kiyiladigan qurilma ma'lumotlari ID'si",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.DeleteWearableDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "DeleteWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/wearable-dataGet/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.",
                 "consumes": [
                     "application/json"
@@ -708,9 +846,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini o'chiradi.",
+            }
+        },
+        "/health/wearable-dataUp": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ushbu endpoint mavjud kiyiladigan qurilma ma'lumotlarini yangilaydi.",
                 "consumes": [
                     "application/json"
                 ],
@@ -720,25 +865,89 @@ const docTemplate = `{
                 "tags": [
                     "wearable-data"
                 ],
-                "summary": "Delete Wearable Data",
+                "summary": "Update Wearable Data",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Kiyiladigan qurilma ma'lumotlari ID'si",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Yangilangan kiyiladigan qurilma ma'lumotlari",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.UpdateWearableDataRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/health_analytics.DeleteWearableDataResponse"
+                            "$ref": "#/definitions/health_analytics.UpdateWearableDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "bodydan malumotlarni olishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "DeleteWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "description": "UpdateWearableData yuborishda xatolik: \u003cerror_message\u003e",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/wearabledata/{limit}/{page}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ushbu endpoint foydalanuvchilarning barcha wearable (kiyiladigan) ma'lumotlarini olish uchun ishlatiladi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wearable-data"
+                ],
+                "summary": "Get All Wearable Data",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cheklov (sahifadagi yozuvlar soni)",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Ma'lumotlar muvaffaqiyatli qaytarildi",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.GetAllWearableDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid limit or page parameter\" \"Noto'g'ri limit yoki sahifa parametri",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\" \"Serverda xatolik yuz berdi",
                         "schema": {
                             "type": "string"
                         }
@@ -881,6 +1090,28 @@ const docTemplate = `{
             "properties": {
                 "recommendations": {
                     "$ref": "#/definitions/health_analytics.HealthRecommendation"
+                }
+            }
+        },
+        "health_analytics.GetAllLifestyleDataResponse": {
+            "type": "object",
+            "properties": {
+                "lifestyledata": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/health_analytics.LifestyleData"
+                    }
+                }
+            }
+        },
+        "health_analytics.GetAllWearableDataResponse": {
+            "type": "object",
+            "properties": {
+                "wearabledata": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/health_analytics.WearableData"
+                    }
                 }
             }
         },
@@ -1181,6 +1412,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

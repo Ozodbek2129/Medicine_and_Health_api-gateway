@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,11 +16,12 @@ import (
 // @Tags MedicalRecords
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param medicalRecord body health_analytics.AddMedicalRecordRequest true "Medical Record Data"
 // @Success 202 {object} health_analytics.AddMedicalRecordResponse
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
-// @Router /health/medical_records [post]
+// @Router /health/medical_recordsAdd [post]
 func (h *Handler) AddMedicalRecord(c *gin.Context) {
 	req := pb.AddMedicalRecordRequest{}
 
@@ -35,7 +37,7 @@ func (h *Handler) AddMedicalRecord(c *gin.Context) {
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
-	if err!=nil{
+	if err != nil {
 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -61,11 +63,12 @@ func (h *Handler) AddMedicalRecord(c *gin.Context) {
 // @Tags MedicalRecords
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Medical Record ID"
 // @Success 202 {object} health_analytics.GetMedicalRecordResponse
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
-// @Router /health/medical_records/{id} [get]
+// @Router /health/medical_recordsGet/{id} [get]
 func (h *Handler) GetMedicalRecord(c *gin.Context) {
 	req := pb.GetMedicalRecordRequest{
 		Id: c.Param("id"),
@@ -85,11 +88,12 @@ func (h *Handler) GetMedicalRecord(c *gin.Context) {
 // @Tags MedicalRecords
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param medicalRecord body health_analytics.UpdateMedicalRecordRequest true "Updated Medical Record Data"
 // @Success 202 {object} health_analytics.UpdateMedicalRecordResponse
 // @Failure 400 {object} string "Bad Request"}
 // @Failure 500 {object} string "Internal Server Error"
-// @Router /health/medical_records [put]
+// @Router /health/medical_recordsUp [put]
 func (h *Handler) UpdateMedicalRecord(c *gin.Context) {
 	req := pb.UpdateMedicalRecordRequest{}
 
@@ -114,6 +118,7 @@ func (h *Handler) UpdateMedicalRecord(c *gin.Context) {
 // @Tags MedicalRecords
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Medical Record ID"
 // @Success 202 {object} health_analytics.DeleteMedicalRecordResponse
 // @Failure 400 {object} string "Bad Request"
@@ -138,6 +143,7 @@ func (h *Handler) DeleteMedicalRecord(c *gin.Context) {
 // @Tags MedicalRecords
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param userId path string true "User ID"
 // @Success 202 {object} health_analytics.ListMedicalRecordsResponse
 // @Failure 400 {object} string "Bad Request"
@@ -162,11 +168,12 @@ func (h *Handler) ListMedicalRecords(c *gin.Context) {
 // @Tags LifestyleData
 // @Accept  json
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param data body health_analytics.AddLifestyleDataRequest true "Turmush tarzi ma'lumotlari"
 // @Success 202 {object} health_analytics.AddLifestyleDataResponse
 // @Failure 400 {object} string "Noto'g'ri so'rov"
 // @Failure 500 {object} string "Ichki server xatoligi"
-// @Router /health/lifestyle [post]
+// @Router /health/lifestyleAdd [post]
 func (h *Handler) AddLifestyleData(c *gin.Context) {
 	req := pb.AddLifestyleDataRequest{}
 
@@ -182,7 +189,7 @@ func (h *Handler) AddLifestyleData(c *gin.Context) {
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
-	if err!=nil{
+	if err != nil {
 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -203,15 +210,58 @@ func (h *Handler) AddLifestyleData(c *gin.Context) {
 	c.JSON(http.StatusAccepted, resp)
 }
 
+// @Summary Get All Lifestyle Data
+// @Description Foydalanuvchilarning barcha lifestyle (turmush tarzi) ma'lumotlarini olish uchun ishlatiladi.
+// @Tags LifestyleData
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param limit query int true "Cheklov (sahifadagi yozuvlar soni)"
+// @Param page query int true "Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)"
+// @Success 202 {object} health_analytics.GetAllLifestyleDataResponse "Ma'lumotlar muvaffaqiyatli qaytarildi"
+// @Failure 400 {object} string "Invalid limit or page parameter" "Noto'g'ri limit yoki sahifa parametri"
+// @Failure 500 {object} string "Internal Server Error" "Serverda xatolik yuz berdi"
+// @Router /health/getalllifestyledata/{limit}/{page} [get]
+func (h *Handler) GetAllLifestyleData(c *gin.Context) {
+	limitStr := c.Query("limit")
+	pageStr := c.Query("page")
+
+	limit, err := strconv.ParseInt(limitStr, 10, 64)
+	if err != nil || limit <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	page, err := strconv.ParseInt(pageStr, 10, 64)
+	if err != nil || page <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page parameter"})
+		return
+	}
+
+	req := pb.GetAllLifestyleDataRequest{
+		Limit: limit,
+		Page:  page,
+	}
+
+	resp, err := h.HealthService.GetAllLifestyleData(c, &req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GetAllLifestyleData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
 // @Summary Turmush tarzi ma'lumotlarini olish
 // @Description Turmush tarzi ma'lumotlarini ID bo'yicha olish
 // @Tags LifestyleData
 // @Accept  json
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param id path string true "Turmush tarzi ma'lumotlari ID si"
 // @Success 202 {object} health_analytics.GetLifestyleDataResponse
 // @Failure 500 {object} string "Ichki server xatoligi"
-// @Router /health/lifestyle/{id} [get]
+// @Router /health/lifestyleGet/{id} [get]
 func (h *Handler) GetLifestyleData(c *gin.Context) {
 	req := pb.GetLifestyleDataRequest{
 		Id: c.Param("id"),
@@ -231,11 +281,12 @@ func (h *Handler) GetLifestyleData(c *gin.Context) {
 // @Tags LifestyleData
 // @Accept  json
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param data body health_analytics.UpdateLifestyleDataRequest true "Yangilanadigan turmush tarzi ma'lumotlari"
 // @Success 202 {object} health_analytics.UpdateLifestyleDataResponse
 // @Failure 400 {object} string "Noto'g'ri so'rov"
 // @Failure 500 {object} string "Ichki server xatoligi"
-// @Router /health/lifestyle [put]
+// @Router /health/lifestyleUp [put]
 func (h *Handler) UpdateLifestyleData(c *gin.Context) {
 	req := pb.UpdateLifestyleDataRequest{}
 
@@ -260,10 +311,11 @@ func (h *Handler) UpdateLifestyleData(c *gin.Context) {
 // @Tags LifestyleData
 // @Accept  json
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param id path string true "Turmush tarzi ma'lumotlari ID si"
 // @Success 202 {object} health_analytics.DeleteLifestyleDataResponse
 // @Failure 500 {object} string "Ichki server xatoligi"
-// @Router /health/lifestyle/{id} [delete]
+// @Router /health/lifestyleDel/{id} [delete]
 func (h *Handler) DeleteLifestyleData(c *gin.Context) {
 	req := pb.DeleteLifestyleDataRequest{
 		Id: c.Param("id"),
@@ -283,11 +335,12 @@ func (h *Handler) DeleteLifestyleData(c *gin.Context) {
 // @Tags         wearable-data
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        data  body  health_analytics.AddWearableDataRequest  true  "Kiyiladigan qurilma ma'lumotlari"
 // @Success      202   {object}  health_analytics.AddWearableDataResponse
 // @Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
 // @Failure      500   {object}  string "AddWearableData yuborishda xatolik: <error_message>"
-// @Router       /health/wearable-data [post]
+// @Router       /health/wearable-dataAdd [post]
 func (h *Handler) AddWearableData(c *gin.Context) {
 	req := pb.AddWearableDataRequest{}
 
@@ -303,7 +356,7 @@ func (h *Handler) AddWearableData(c *gin.Context) {
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
-	if err!=nil{
+	if err != nil {
 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -324,15 +377,58 @@ func (h *Handler) AddWearableData(c *gin.Context) {
 	c.JSON(http.StatusAccepted, resp)
 }
 
+// @Summary Get All Wearable Data
+// @Description Ushbu endpoint foydalanuvchilarning barcha wearable (kiyiladigan) ma'lumotlarini olish uchun ishlatiladi.
+// @Tags wearable-data
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param limit query int true "Cheklov (sahifadagi yozuvlar soni)"
+// @Param page query int true "Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)"
+// @Success 202 {object} health_analytics.GetAllWearableDataResponse "Ma'lumotlar muvaffaqiyatli qaytarildi"
+// @Failure 400 {object} string "Invalid limit or page parameter" "Noto'g'ri limit yoki sahifa parametri"
+// @Failure 500 {object} string "Internal Server Error" "Serverda xatolik yuz berdi"
+// @Router /health/wearabledata/{limit}/{page} [get]
+func (h *Handler) GetAllWearableData(c *gin.Context){
+	limitStr := c.Query("limit")
+	pageStr := c.Query("page")
+
+	limit, err := strconv.ParseInt(limitStr, 10, 64)
+	if err != nil || limit <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	page, err := strconv.ParseInt(pageStr, 10, 64)
+	if err != nil || page <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page parameter"})
+		return
+	}
+
+	req := pb.GetAllWearableDataRequest{
+		Limit: limit,
+		Page:  page,
+	}
+
+	resp, err := h.HealthService.GetAllWearableData(c, &req)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("GetAllWearableData yuborishda xatolik: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, resp)
+}
+
 // @Summary      Get Wearable Data
 // @Description  Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
 // @Tags         wearable-data
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
 // @Success      202   {object}  health_analytics.GetWearableDataResponse
 // @Failure      500   {object}  string "GetWearableData yuborishda xatolik: <error_message>"
-// @Router       /health/wearable-data/{id} [get]
+// @Router       /health/wearable-dataGet/{id} [get]
 func (h *Handler) GetWearableData(c *gin.Context) {
 	req := pb.GetWearableDataRequest{
 		Id: c.Param("id"),
@@ -352,11 +448,12 @@ func (h *Handler) GetWearableData(c *gin.Context) {
 // @Tags         wearable-data
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        data  body  health_analytics.UpdateWearableDataRequest  true  "Yangilangan kiyiladigan qurilma ma'lumotlari"
 // @Success      202   {object}  health_analytics.UpdateWearableDataResponse
 // @Failure      400   {object}  string "bodydan malumotlarni olishda xatolik: <error_message>"
 // @Failure      500   {object}  string "UpdateWearableData yuborishda xatolik: <error_message>"
-// @Router       /health/wearable-data [put]
+// @Router       /health/wearable-dataUp [put]
 func (h *Handler) UpdateWearableData(c *gin.Context) {
 	req := pb.UpdateWearableDataRequest{}
 
@@ -381,10 +478,11 @@ func (h *Handler) UpdateWearableData(c *gin.Context) {
 // @Tags         wearable-data
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        id    path      string  true  "Kiyiladigan qurilma ma'lumotlari ID'si"
 // @Success      202   {object}  health_analytics.DeleteWearableDataResponse
 // @Failure      500   {object}  string "DeleteWearableData yuborishda xatolik: <error_message>"
-// @Router       /health/wearable-data/{id} [delete]
+// @Router       /health/wearable-dataDel/{id} [delete]
 func (h *Handler) DeleteWearableData(c *gin.Context) {
 	req := pb.DeleteWearableDataRequest{
 		Id: c.Param("id"),
@@ -404,11 +502,12 @@ func (h *Handler) DeleteWearableData(c *gin.Context) {
 // @Tags         Health
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        body  body  health_analytics.GenerateHealthRecommendationsRequest  true  "Tavsiyalar yaratish uchun ma'lumotlar"
 // @Success      202  {object}  health_analytics.GenerateHealthRecommendationsResponse
 // @Failure      400  {object}  string  "Xatolik: Notog'ri so'rov"
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
-// @Router       /health/recommendations [post]
+// @Router       /health/recommendationsAdd [post]
 func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 	req := pb.GenerateHealthRecommendationsRequest{}
 
@@ -424,7 +523,7 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
-	if err!=nil{
+	if err != nil {
 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -450,6 +549,7 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 // @Tags         Health
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        user_id  path  string  true  "Foydalanuvchi ID"
 // @Success      202  {object}  health_analytics.GetRealtimeHealthMonitoringResponse
 // @Failure      500  {object}  string  "Xatolik: Ichki server xatosi"
@@ -492,6 +592,7 @@ func (h *Handler) GetRealtimeHealthMonitoring(c *gin.Context) {
 // @Tags         Health
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        user_id  path  string  true  "Foydalanuvchi ID"
 // @Param        date     path  string  true  "Kun (format: yyyy/mm/dd)"
 // @Success      202  {object}  health_analytics.GetDailyHealthSummaryResponse
@@ -537,6 +638,7 @@ func (h *Handler) GetDailyHealthSummary(c *gin.Context) {
 // @Tags         Health
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        user_id    path  string  true  "Foydalanuvchi ID"
 // @Param        start_date path  string  true  "Boshlang'ich sana (format: yyyy/mm/dd)"
 // @Success      202  {object}  health_analytics.GetWeeklyHealthSummaryResponse

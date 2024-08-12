@@ -3,6 +3,7 @@ package main
 import (
 	"api-gateway/api"
 	"api-gateway/api/handler"
+	"api-gateway/casbin"
 	"api-gateway/config"
 	"api-gateway/genproto/health_analytics"
 	"api-gateway/genproto/user"
@@ -36,10 +37,17 @@ func NewHandler() *handler.Handler {
 
 	users:=user.NewUserServiceClient(userr)
 	healthh := health_analytics.NewHealthAnalyticsServiceClient(health)
+
+	logs := logger.NewLogger()
+	en, err := casbin.CasbinEnforcer(logs)
+	if err != nil {
+		log.Fatal("error in creating casbin enforcer", err)
+	}
 	
 	return &handler.Handler{
 		HealthService: healthh,
 		UserService: users,
 		Log: logger.NewLogger(),
+		Enforcer: en,
 	} 
 }

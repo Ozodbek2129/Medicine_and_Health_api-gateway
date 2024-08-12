@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -16,11 +15,7 @@ type Config struct {
 	API_GATEWAY    string
 }
 
-func Load() Config {
-	if err := SignKeyniUzgartirish(); err != nil {
-		log.Fatalf("SIGNING_KEY ni yangilashda xatolik: %v", err)
-	}
-	
+func Load() Config {	
 	if err := godotenv.Load(".env"); err != nil {
 		log.Print("No .env file found?")
 	}
@@ -39,36 +34,4 @@ func Coalesce(key string, defaultValue interface{}) interface{} {
 		return value
 	}
 	return defaultValue
-}
-
-func SignKeyniUzgartirish() error {
-	userServiceEnvPath := "C:/imtixon4oy/UserService/.env"
-	if err := godotenv.Load(userServiceEnvPath); err != nil {
-		log.Fatal(".env faylini yuklashda xatolik yuz berdi")
-		return err
-	}
-
-	signingKey := os.Getenv("SIGNING_KEY")
-	if signingKey == "" {
-		log.Fatal("SIGNING_KEY qiymati topilmadi")
-		return fmt.Errorf("SIGNING_KEY qiymati topilmadi")
-	}
-
-	apiGatewayEnvPath := ".env"
-	if err := godotenv.Load(apiGatewayEnvPath); err != nil {
-		log.Fatal(".env faylini yuklashda xatolik yuz berdi")
-		return err
-	}
-
-	err := godotenv.Write(map[string]string{
-		"USER_SERVICE":   os.Getenv("USER_SERVICE"),
-		"HEALTH_SERVICE": os.Getenv("HEALTH_SERVICE"),
-		"API_GATEWAY":    os.Getenv("API_GATEWAY"),
-		"SIGNING_KEY":    signingKey,
-	}, apiGatewayEnvPath)
-
-	if err != nil {
-		log.Fatalf(".env fayliga SIGNING_KEY yozishda xatolik yuz berdi: %v", err)
-	}
-	return nil
 }

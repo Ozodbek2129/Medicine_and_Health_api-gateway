@@ -2,11 +2,13 @@ package api
 
 import (
 	"api-gateway/api/handler"
+	"api-gateway/api/middleware"
+
+	_ "api-gateway/api/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "api-gateway/api/docs"
 )
 
 // @title User Service API
@@ -23,32 +25,40 @@ import (
 
 // @host localhost:50053
 // @BasePath /
-func NewRouter(h *handler.Handler) *gin.Engine{
-	router:=gin.Default()
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+func NewRouter(h *handler.Handler) *gin.Engine {
+	router := gin.Default()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.Use(middleware.Check)
+	router.Use(middleware.CheckPermissionMiddleware(h.Enforcer))
 
-	health:=router.Group("/health")
+	health := router.Group("/health")
 	{
-		health.POST("/medical_records",h.AddMedicalRecord)
-		health.GET("/medical_records/:id",h.GetMedicalRecord)
-		health.PUT("/medical_records",h.UpdateMedicalRecord)
-		health.DELETE("/medical_records/:id",h.DeleteMedicalRecord)
-		health.GET("/medical_records/user/:userId",h.ListMedicalRecords)
+		health.POST("/medical_recordsAdd", h.AddMedicalRecord)
+		health.GET("/medical_recordsGet/:id", h.GetMedicalRecord)
+		health.PUT("/medical_recordsUp", h.UpdateMedicalRecord)
+		health.DELETE("/medical_recordsDel/:id", h.DeleteMedicalRecord)
+		health.GET("/medical_records/user/:userId", h.ListMedicalRecords)
 
-		health.POST("/lifestyle",h.AddLifestyleData)
-		health.GET("/lifestyle/:id",h.GetLifestyleData)
-		health.PUT("/lifestyle",h.UpdateLifestyleData)
-		health.DELETE("/lifestyle/:id",h.DeleteLifestyleData)
+		health.POST("/lifestyleAdd", h.AddLifestyleData)
+		health.GET("/getalllifestyledata/:limit/:page", h.GetAllLifestyleData)
+		health.GET("/lifestyleGet/:id", h.GetLifestyleData)
+		health.PUT("/lifestyleUp", h.UpdateLifestyleData)
+		health.DELETE("/lifestyleDel/:id", h.DeleteLifestyleData)
 
-		health.POST("/wearable-data",h.AddWearableData)
-		health.GET("/wearable-data/:id",h.GetWearableData)
-		health.PUT("/wearable-data",h.UpdateWearableData)
-		health.DELETE("/wearable-data/:id",h.DeleteWearableData)
+		health.POST("/wearable-dataAdd", h.AddWearableData)
+		health.GET("/wearabledata/:limit/:page", h.GetAllWearableData)
+		health.GET("/wearable-dataGet/:id", h.GetWearableData)
+		health.PUT("/wearable-dataUp", h.UpdateWearableData)
+		health.DELETE("/wearable-dataDel/:id", h.DeleteWearableData)
 
-		health.POST("/recommendations",h.GenerateHealthRecommendations)
-		health.GET("/monitoring/:user_id/realtime",h.GetRealtimeHealthMonitoring)
-		health.GET("/summary/:user_id/daily/:date",h.GetDailyHealthSummary)
-		health.GET("/summary/:user_id/weekly/:start_date",h.GetWeeklyHealthSummary)
+		health.POST("/recommendationsAdd", h.GenerateHealthRecommendations)
+		health.GET("/monitoring/:user_id/realtime", h.GetRealtimeHealthMonitoring)
+		health.GET("/summary/:user_id/daily/:date", h.GetDailyHealthSummary)
+		health.GET("/summary/:user_id/weekly/:start_date", h.GetWeeklyHealthSummary)
 	}
 	return router
 }

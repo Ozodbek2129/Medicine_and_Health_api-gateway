@@ -87,6 +87,20 @@ definitions:
       recommendations:
         $ref: '#/definitions/health_analytics.HealthRecommendation'
     type: object
+  health_analytics.GetAllLifestyleDataResponse:
+    properties:
+      lifestyledata:
+        items:
+          $ref: '#/definitions/health_analytics.LifestyleData'
+        type: array
+    type: object
+  health_analytics.GetAllWearableDataResponse:
+    properties:
+      wearabledata:
+        items:
+          $ref: '#/definitions/health_analytics.WearableData'
+        type: array
+    type: object
   health_analytics.GetDailyHealthSummaryResponse:
     properties:
       description:
@@ -294,7 +308,45 @@ info:
   title: User Service API
   version: "1.0"
 paths:
-  /health/lifestyle:
+  /health/getalllifestyledata/{limit}/{page}:
+    get:
+      consumes:
+      - application/json
+      description: Foydalanuvchilarning barcha lifestyle (turmush tarzi) ma'lumotlarini
+        olish uchun ishlatiladi.
+      parameters:
+      - description: Cheklov (sahifadagi yozuvlar soni)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Ma'lumotlar muvaffaqiyatli qaytarildi
+          schema:
+            $ref: '#/definitions/health_analytics.GetAllLifestyleDataResponse'
+        "400":
+          description: Invalid limit or page parameter" "Noto'g'ri limit yoki sahifa
+            parametri
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error" "Serverda xatolik yuz berdi
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Lifestyle Data
+      tags:
+      - LifestyleData
+  /health/lifestyleAdd:
     post:
       consumes:
       - application/json
@@ -321,9 +373,66 @@ paths:
           description: Ichki server xatoligi
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Turmush tarzi ma'lumotlarini qo'shish
       tags:
       - LifestyleData
+  /health/lifestyleDel/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish
+      parameters:
+      - description: Turmush tarzi ma'lumotlari ID si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteLifestyleDataResponse'
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Turmush tarzi ma'lumotlarini o'chirish
+      tags:
+      - LifestyleData
+  /health/lifestyleGet/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Turmush tarzi ma'lumotlarini ID bo'yicha olish
+      parameters:
+      - description: Turmush tarzi ma'lumotlari ID si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetLifestyleDataResponse'
+        "500":
+          description: Ichki server xatoligi
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Turmush tarzi ma'lumotlarini olish
+      tags:
+      - LifestyleData
+  /health/lifestyleUp:
     put:
       consumes:
       - application/json
@@ -350,117 +459,11 @@ paths:
           description: Ichki server xatoligi
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Turmush tarzi ma'lumotlarini yangilash
       tags:
       - LifestyleData
-  /health/lifestyle/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Turmush tarzi ma'lumotlarini ID bo'yicha o'chirish
-      parameters:
-      - description: Turmush tarzi ma'lumotlari ID si
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.DeleteLifestyleDataResponse'
-        "500":
-          description: Ichki server xatoligi
-          schema:
-            type: string
-      summary: Turmush tarzi ma'lumotlarini o'chirish
-      tags:
-      - LifestyleData
-    get:
-      consumes:
-      - application/json
-      description: Turmush tarzi ma'lumotlarini ID bo'yicha olish
-      parameters:
-      - description: Turmush tarzi ma'lumotlari ID si
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.GetLifestyleDataResponse'
-        "500":
-          description: Ichki server xatoligi
-          schema:
-            type: string
-      summary: Turmush tarzi ma'lumotlarini olish
-      tags:
-      - LifestyleData
-  /health/medical_records:
-    post:
-      consumes:
-      - application/json
-      description: This endpoint allows you to add a new medical record to the system.
-      parameters:
-      - description: Medical Record Data
-        in: body
-        name: medicalRecord
-        required: true
-        schema:
-          $ref: '#/definitions/health_analytics.AddMedicalRecordRequest'
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.AddMedicalRecordResponse'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Add a new medical record
-      tags:
-      - MedicalRecords
-    put:
-      consumes:
-      - application/json
-      description: This endpoint allows you to update an existing medical record.
-      parameters:
-      - description: Updated Medical Record Data
-        in: body
-        name: medicalRecord
-        required: true
-        schema:
-          $ref: '#/definitions/health_analytics.UpdateMedicalRecordRequest'
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.UpdateMedicalRecordResponse'
-        "400":
-          description: Bad Request"}
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Update a medical record
-      tags:
-      - MedicalRecords
   /health/medical_records/{id}:
     delete:
       consumes:
@@ -487,35 +490,9 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Delete a medical record by ID
-      tags:
-      - MedicalRecords
-    get:
-      consumes:
-      - application/json
-      description: This endpoint allows you to fetch a medical record by its ID.
-      parameters:
-      - description: Medical Record ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.GetMedicalRecordResponse'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get a medical record by ID
       tags:
       - MedicalRecords
   /health/medical_records/user/{userId}:
@@ -545,7 +522,104 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: List all medical records for a user
+      tags:
+      - MedicalRecords
+  /health/medical_recordsAdd:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows you to add a new medical record to the system.
+      parameters:
+      - description: Medical Record Data
+        in: body
+        name: medicalRecord
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.AddMedicalRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.AddMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new medical record
+      tags:
+      - MedicalRecords
+  /health/medical_recordsGet/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint allows you to fetch a medical record by its ID.
+      parameters:
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get a medical record by ID
+      tags:
+      - MedicalRecords
+  /health/medical_recordsUp:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint allows you to update an existing medical record.
+      parameters:
+      - description: Updated Medical Record Data
+        in: body
+        name: medicalRecord
+        required: true
+        schema:
+          $ref: '#/definitions/health_analytics.UpdateMedicalRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.UpdateMedicalRecordResponse'
+        "400":
+          description: Bad Request"}
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update a medical record
       tags:
       - MedicalRecords
   /health/monitoring/{user_id}/realtime:
@@ -570,10 +644,12 @@ paths:
           description: 'Xatolik: Ichki server xatosi'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Real vaqt sog'liq monitoringi
       tags:
       - Health
-  /health/recommendations:
+  /health/recommendationsAdd:
     post:
       consumes:
       - application/json
@@ -600,6 +676,8 @@ paths:
           description: 'Xatolik: Ichki server xatosi'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Sog'liq bo'yicha tavsiyalar yaratish
       tags:
       - Health
@@ -630,6 +708,8 @@ paths:
           description: 'Xatolik: Ichki server xatosi'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Kunlik sog'liq hisobotini olish
       tags:
       - Health
@@ -660,10 +740,12 @@ paths:
           description: 'Xatolik: Ichki server xatosi'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Haftalik sog'liq hisobotini olish
       tags:
       - Health
-  /health/wearable-data:
+  /health/wearable-dataAdd:
     post:
       consumes:
       - application/json
@@ -690,9 +772,67 @@ paths:
           description: 'AddWearableData yuborishda xatolik: <error_message>'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Add Wearable Data
       tags:
       - wearable-data
+  /health/wearable-dataDel/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini
+        o'chiradi.
+      parameters:
+      - description: Kiyiladigan qurilma ma'lumotlari ID'si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteWearableDataResponse'
+        "500":
+          description: 'DeleteWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Wearable Data
+      tags:
+      - wearable-data
+  /health/wearable-dataGet/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
+      parameters:
+      - description: Kiyiladigan qurilma ma'lumotlari ID'si
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.GetWearableDataResponse'
+        "500":
+          description: 'GetWearableData yuborishda xatolik: <error_message>'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get Wearable Data
+      tags:
+      - wearable-data
+  /health/wearable-dataUp:
     put:
       consumes:
       - application/json
@@ -719,57 +859,52 @@ paths:
           description: 'UpdateWearableData yuborishda xatolik: <error_message>'
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Update Wearable Data
       tags:
       - wearable-data
-  /health/wearable-data/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Ushbu endpoint berilgan ID bo'yicha kiyiladigan qurilma ma'lumotlarini
-        o'chiradi.
-      parameters:
-      - description: Kiyiladigan qurilma ma'lumotlari ID'si
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.DeleteWearableDataResponse'
-        "500":
-          description: 'DeleteWearableData yuborishda xatolik: <error_message>'
-          schema:
-            type: string
-      summary: Delete Wearable Data
-      tags:
-      - wearable-data
+  /health/wearabledata/{limit}/{page}:
     get:
       consumes:
       - application/json
-      description: Ushbu endpoint ID bo'yicha kiyiladigan qurilma ma'lumotlarini qaytaradi.
+      description: Ushbu endpoint foydalanuvchilarning barcha wearable (kiyiladigan)
+        ma'lumotlarini olish uchun ishlatiladi.
       parameters:
-      - description: Kiyiladigan qurilma ma'lumotlari ID'si
-        in: path
-        name: id
+      - description: Cheklov (sahifadagi yozuvlar soni)
+        in: query
+        name: limit
         required: true
-        type: string
+        type: integer
+      - description: Sahifa (qaysi sahifadagi yozuvlar ko'rinadi)
+        in: query
+        name: page
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "202":
-          description: Accepted
+          description: Ma'lumotlar muvaffaqiyatli qaytarildi
           schema:
-            $ref: '#/definitions/health_analytics.GetWearableDataResponse'
-        "500":
-          description: 'GetWearableData yuborishda xatolik: <error_message>'
+            $ref: '#/definitions/health_analytics.GetAllWearableDataResponse'
+        "400":
+          description: Invalid limit or page parameter" "Noto'g'ri limit yoki sahifa
+            parametri
           schema:
             type: string
-      summary: Get Wearable Data
+        "500":
+          description: Internal Server Error" "Serverda xatolik yuz berdi
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Wearable Data
       tags:
       - wearable-data
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
