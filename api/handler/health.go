@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/streadway/amqp"
 )
 
 // @Summary Add a new medical record
@@ -344,6 +347,7 @@ func (h *Handler) DeleteLifestyleData(c *gin.Context) {
 func (h *Handler) AddWearableData(c *gin.Context) {
 	req := pb.AddWearableDataRequest{}
 
+	// Request body'dan ma'lumotlarni olish
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
@@ -351,13 +355,14 @@ func (h *Handler) AddWearableData(c *gin.Context) {
 		return
 	}
 
+	// User ID tekshirish
 	req1 := pbu.UserId{
 		Userid: req.UserId,
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
 	if err != nil {
-		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -368,14 +373,111 @@ func (h *Handler) AddWearableData(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.HealthService.AddWearableData(c, &req)
+	// UUID va vaqt yaratish
+	id := uuid.NewString()
+	vaqt := time.Now().Format(time.RFC3339)
+
+	// Xabarni yaratish
+	wearableData := pb.AddWearableDataRequest{
+		UserId:            req.UserId,
+		DeviceType:        req.DeviceType,
+		DataType:          req.DataType,
+		DataValue:         req.DataValue,
+		RecordedTimestamp: req.RecordedTimestamp,
+	}
+
+	messageBody, err := json.Marshal(struct {
+		Id string `json:"id"`
+		*pb.AddWearableDataRequest
+	}{
+		Id:                     id,
+		AddWearableDataRequest: &wearableData,
+	})
 	if err != nil {
-		h.Log.Error(fmt.Sprintf("AddWearableData yuborishda xatolik: %v", err))
+		h.Log.Error(fmt.Sprintf("Failed to marshal request to JSON: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)
+
+	q, err := h.RabbitMQChannel.QueueDeclare(
+		"wearable_data_queue", // name
+		false,                 // durable
+		false,                 // delete when unused
+		false,                 // exclusive
+		false,                 // no-wait
+		nil,                   // arguments
+	)
+
+	// RabbitMQ ga xabar yuborish
+	err = h.RabbitMQChannel.Publish(
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(messageBody),
+		})
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("Failed to publish a message to RabbitMQ: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Response yuborish
+	c.JSON(http.StatusAccepted, &pb.AddWearableDataResponse{
+		WearableData: &pb.WearableData{
+			Id:                id,
+			UserId:            req.UserId,
+			DeviceType:        req.DeviceType,
+			DataType:          req.DataType,
+			DataValue:         req.DataValue,
+			RecordedTimestamp: req.RecordedTimestamp,
+			CreatedAt:         vaqt,
+			UpdatedAt:         vaqt,
+		},
+	})
 }
+
+// ------------------------------------------------------------------------------------------------
+
+// func (h *Handler) AddWearableData(c *gin.Context) {
+// 	req := pb.AddWearableDataRequest{}
+
+// 	err := json.NewDecoder(c.Request.Body).Decode(&req)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	req1 := pbu.UserId{
+// 		Userid: req.UserId,
+// 	}
+
+// 	resp1, err := h.UserService.IdCheck(c, &req1)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	if !resp1.B {
+// 		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+// 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+// 		return
+// 	}
+
+// 	resp, err := h.HealthService.AddWearableData(c, &req)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("AddWearableData yuborishda xatolik: %v", err))
+// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	c.JSON(http.StatusAccepted, resp)
+// }
+
+// ------------------------------------------------------------------------------------------------
 
 // @Summary Get All Wearable Data
 // @Description Ushbu endpoint foydalanuvchilarning barcha wearable (kiyiladigan) ma'lumotlarini olish uchun ishlatiladi.
@@ -389,7 +491,7 @@ func (h *Handler) AddWearableData(c *gin.Context) {
 // @Failure 400 {object} string "Invalid limit or page parameter" "Noto'g'ri limit yoki sahifa parametri"
 // @Failure 500 {object} string "Internal Server Error" "Serverda xatolik yuz berdi"
 // @Router /health/wearabledata/{limit}/{page} [get]
-func (h *Handler) GetAllWearableData(c *gin.Context){
+func (h *Handler) GetAllWearableData(c *gin.Context) {
 	limitStr := c.Query("limit")
 	pageStr := c.Query("page")
 
@@ -511,6 +613,7 @@ func (h *Handler) DeleteWearableData(c *gin.Context) {
 func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 	req := pb.GenerateHealthRecommendationsRequest{}
 
+	// Request body'dan ma'lumotlarni olish
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
@@ -518,13 +621,14 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 		return
 	}
 
+	// User ID tekshirish
 	req1 := pbu.UserId{
 		Userid: req.UserId,
 	}
 
 	resp1, err := h.UserService.IdCheck(c, &req1)
 	if err != nil {
-		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -535,14 +639,101 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.HealthService.GenerateHealthRecommendations(c, &req)
+	// UUID va vaqt yaratish
+	id := uuid.NewString()
+	vaqt := time.Now().Format(time.RFC3339)
+
+	// Xabarni yaratish
+	healthData := pb.GenerateHealthRecommendationsRequest{
+		UserId:    req.UserId,
+		RecommendationType: req.RecommendationType,
+		Description: req.Description,
+		Priority: req.Priority,
+	}
+
+	messageBody, err := json.Marshal(struct {
+		Id string `json:"id"`
+		*pb.GenerateHealthRecommendationsRequest
+	}{
+		Id:                                id,
+		GenerateHealthRecommendationsRequest: &healthData,
+	})
 	if err != nil {
-		h.Log.Error(fmt.Sprintf("GenerateHealthRecommendations yuborishda xatolik: %v", err))
+		h.Log.Error(fmt.Sprintf("Failed to marshal request to JSON: %v", err))
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)
+
+	// RabbitMQ ga xabar yuborish uchun navbat yaratish
+	q, err := h.RabbitMQChannel.QueueDeclare(
+		"health_recommendations_queue", // name
+		false,                          // durable
+		false,                          // delete when unused
+		false,                          // exclusive
+		false,                          // no-wait
+		nil,                            // arguments
+	)
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("Failed to declare a queue: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Queue yaratishda xatolik"})
+		return
+	}
+
+	// RabbitMQ ga xabar yuborish
+	err = h.RabbitMQChannel.Publish(
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        []byte(messageBody),
+		})
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("Failed to publish a message to RabbitMQ: %v", err))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "RabbitMQ ga xabar yuborishda xatolik"})
+		return
+	}
+
+	// Response yuborish
+	c.JSON(http.StatusAccepted, gin.H{"message": "Health recommendations request yuborildi", "id": id, "created_at": vaqt})
 }
+
+// func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
+// 	req := pb.GenerateHealthRecommendationsRequest{}
+
+// 	err := json.NewDecoder(c.Request.Body).Decode(&req)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("bodydan malumotlarni olishda xatolik: %v", err))
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	req1 := pbu.UserId{
+// 		Userid: req.UserId,
+// 	}
+
+// 	resp1, err := h.UserService.IdCheck(c, &req1)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("Id ni tekshirishda xatolik %v", err))
+// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	if !resp1.B {
+// 		h.Log.Warn(fmt.Sprintf("Foydalanuvchi ID topilmadi: %v", req.UserId))
+// 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Foydalanuvchi topilmadi"})
+// 		return
+// 	}
+
+// 	resp, err := h.HealthService.GenerateHealthRecommendations(c, &req)
+// 	if err != nil {
+// 		h.Log.Error(fmt.Sprintf("GenerateHealthRecommendations yuborishda xatolik: %v", err))
+// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	c.JSON(http.StatusAccepted, resp)
+// }
 
 // @Summary Generate Health Recommendations by ID
 // @Description Ushbu endpoint berilgan ID bo'yicha o'chirilmagan (deleted_at "0") sog'liq tavsiyalarini oladi.
@@ -554,8 +745,8 @@ func (h *Handler) GenerateHealthRecommendations(c *gin.Context) {
 // @Success 202 {object} health_analytics.GenerateHealthRecommendationsIdResponse
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /health/recommendations/{id} [get]
-func (h *Handler) GenerateHealthRecommendationsId(c *gin.Context){
-	req:=pb.GenerateHealthRecommendationsIdRequest{
+func (h *Handler) GenerateHealthRecommendationsId(c *gin.Context) {
+	req := pb.GenerateHealthRecommendationsIdRequest{
 		Id: c.Param("id"),
 	}
 
@@ -680,5 +871,5 @@ func (h *Handler) GetWeeklyHealthSummary(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, resp)  
+	c.JSON(http.StatusAccepted, resp)
 }
