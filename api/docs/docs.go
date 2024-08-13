@@ -997,6 +997,136 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/notifications": {
+            "post": {
+                "description": "Foydalanuvchiga yangi bildirishnoma qo'shish uchun ishlatiladi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Foydalanuvchiga yangi bildirishnoma qo'shish",
+                "parameters": [
+                    {
+                        "description": "Notifications Add Request Body",
+                        "name": "notifications",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.NotificationsAddRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/user.NotificationsAddResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/notifications/{user_id}": {
+            "get": {
+                "description": "Foydalanuvchi uchun saqlangan barcha bildirishnomalarni olish uchun ishlatiladi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Foydalanuvchi bildirishnomalarini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Foydalanuvchi IDsi",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/user.NotificationsGetResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/notificationsPut": {
+            "put": {
+                "description": "Foydalanuvchi uchun mavjud bildirishnomani yangilash uchun ishlatiladi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Foydalanuvchi bildirishnomasini yangilash",
+                "parameters": [
+                    {
+                        "description": "Notifications Put Request Body",
+                        "name": "notifications",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.NotificationsPutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/user.NotificationsPutResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1460,6 +1590,69 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.Notification": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.NotificationsAddRequest": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.NotificationsAddResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.NotificationsGetResponse": {
+            "type": "object",
+            "properties": {
+                "notifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.Notification"
+                    }
+                }
+            }
+        },
+        "user.NotificationsPutRequest": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.NotificationsPutResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

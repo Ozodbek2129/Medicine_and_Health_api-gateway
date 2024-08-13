@@ -62,5 +62,12 @@ func NewRouter(h *handler.Handler) *gin.Engine {
 		health.GET("/summary/:user_id/daily", h.GetDailyHealthSummary)
 		health.GET("/summary/:user_id/weekly   ", h.GetWeeklyHealthSummary)
 	}
+
+	user:=router.Group("/user")
+	{
+		user.POST("/notifications",h.NotificationsAdd)
+		user.GET("/notifications/:user_id",h.NotificationsGet)
+		user.PUT("/notificationsPut")
+	}
 	return router
 }

@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  postgres-db3:
+    container_name: postgres3
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=casbin
+    ports:
+      - "5435:5432"
+    volumes:
+      - db:/data/postgres3
+    networks:
+      - medic
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      # - "15672:15672"
+    # environment:
+    #   RABBITMQ_DEFAULT_USER: guest
+    #   RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - medic
+
+  api-service:
+    container_name: api-gateway
+    build: .
+    depends_on:
+      - postgres-db3
+      - rabbitmq
+    ports:
+      - "50053:50053"
+    networks:
+     - medic
+
+networks:
+  medic:
+    external: true
+
+volumes:
+  db:
+  postgres-db3:
+  rabbitmq_data:

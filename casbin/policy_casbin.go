@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	host     = "localhost"
+	host     = "postgres3"
 	port     = "5432"
 	dbname   = "casbin"
 	username = "postgres"
-	password = "salom"
+	password = "1234"
 )
 
 func CasbinEnforcer(logger *slog.Logger) (*casbin.Enforcer, error) {
@@ -87,6 +87,15 @@ func CasbinEnforcer(logger *slog.Logger) (*casbin.Enforcer, error) {
 		{"patient", "/health/monitoring/:user_id/realtime", "GET"},
 		{"patient", "/health/summary/:user_id/daily", "GET"},
 		{"patient", "/health/summary/:user_id/weekly", "GET"},
+
+		{"admin","/user/notifications","POST"},
+		{"doctor","/user/notifications","POST"},
+
+		{"doctor","/user/notifications/:user_id","GET"},
+		{"admin","/user/notifications/:user_id","GET"},
+
+		{"admin","/user/notificationsPut","PUT"},
+		{"doctor","/user/notificationsPut","PUT"},
 	}
 
 	_, err = enforcer.AddPolicies(policies)

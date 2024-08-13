@@ -299,6 +299,46 @@ definitions:
       user_id:
         type: string
     type: object
+  user.Notification:
+    properties:
+      created_at:
+        type: string
+      message:
+        type: string
+    type: object
+  user.NotificationsAddRequest:
+    properties:
+      message:
+        type: string
+      user_id:
+        type: string
+    type: object
+  user.NotificationsAddResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  user.NotificationsGetResponse:
+    properties:
+      notifications:
+        items:
+          $ref: '#/definitions/user.Notification'
+        type: array
+    type: object
+  user.NotificationsPutRequest:
+    properties:
+      created_at:
+        type: string
+      message:
+        type: string
+      user_id:
+        type: string
+    type: object
+  user.NotificationsPutResponse:
+    properties:
+      message:
+        type: string
+    type: object
 host: localhost:50053
 info:
   contact:
@@ -935,6 +975,92 @@ paths:
       summary: Get All Wearable Data
       tags:
       - wearable-data
+  /user/notifications:
+    post:
+      consumes:
+      - application/json
+      description: Foydalanuvchiga yangi bildirishnoma qo'shish uchun ishlatiladi.
+      parameters:
+      - description: Notifications Add Request Body
+        in: body
+        name: notifications
+        required: true
+        schema:
+          $ref: '#/definitions/user.NotificationsAddRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/user.NotificationsAddResponse'
+        "400":
+          description: Error message
+          schema:
+            type: string
+        "500":
+          description: Error message
+          schema:
+            type: string
+      summary: Foydalanuvchiga yangi bildirishnoma qo'shish
+      tags:
+      - Notifications
+  /user/notifications/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Foydalanuvchi uchun saqlangan barcha bildirishnomalarni olish uchun
+        ishlatiladi.
+      parameters:
+      - description: Foydalanuvchi IDsi
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/user.NotificationsGetResponse'
+        "500":
+          description: Error message
+          schema:
+            type: string
+      summary: Foydalanuvchi bildirishnomalarini olish
+      tags:
+      - Notifications
+  /user/notificationsPut:
+    put:
+      consumes:
+      - application/json
+      description: Foydalanuvchi uchun mavjud bildirishnomani yangilash uchun ishlatiladi.
+      parameters:
+      - description: Notifications Put Request Body
+        in: body
+        name: notifications
+        required: true
+        schema:
+          $ref: '#/definitions/user.NotificationsPutRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/user.NotificationsPutResponse'
+        "400":
+          description: Error message
+          schema:
+            type: string
+        "500":
+          description: Error message
+          schema:
+            type: string
+      summary: Foydalanuvchi bildirishnomasini yangilash
+      tags:
+      - Notifications
 securityDefinitions:
   ApiKeyAuth:
     in: header

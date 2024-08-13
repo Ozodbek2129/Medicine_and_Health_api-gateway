@@ -9,19 +9,20 @@ import (
 	"api-gateway/genproto/user"
 	"api-gateway/pkg/logger"
 	"log"
+	"time"
 
+	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"github.com/streadway/amqp"
 )
 
 func main() {
 	conf := config.Load()
 	hand := NewHandler()
-	
+
 	router := api.NewRouter(hand)
 	log.Printf("server is running...")
-	log.Fatal(router.Run(conf.API_GATEWAY))
+	log.Fatal(router.Run("api-service" + conf.API_GATEWAY))
 }
 
 func NewHandler() *handler.Handler {
@@ -31,17 +32,17 @@ func NewHandler() *handler.Handler {
 		panic(err)
 	}
 
-	userr, err := grpc.NewClient(conf.USER_SERVICE, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	userr, err := grpc.Dial(conf.USER_SERVICE, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-
+	time.Sleep(20 * time.Second)
 	rabbitMQChannel, err := setupRabbitMQ()
 	if err != nil {
 		log.Fatal("error in setting up RabbitMQ", err)
 	}
 
-	users:=user.NewUserServiceClient(userr)
+	users := user.NewUserServiceClient(userr)
 	healthh := health_analytics.NewHealthAnalyticsServiceClient(health)
 
 	logs := logger.NewLogger()
@@ -49,19 +50,19 @@ func NewHandler() *handler.Handler {
 	if err != nil {
 		log.Fatal("error in creating casbin enforcer", err)
 	}
-	
+
 	return &handler.Handler{
-		HealthService: healthh,
-		UserService: users,
-		Log: logger.NewLogger(),
-		Enforcer: en,
+		HealthService:   healthh,
+		UserService:     users,
+		Log:             logger.NewLogger(),
+		Enforcer:        en,
 		RabbitMQChannel: rabbitMQChannel,
-	} 
+	}
 }
 
 func setupRabbitMQ() (*amqp.Channel, error) {
 	// RabbitMQ serveriga ulanish
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
 		return nil, err
 	}
