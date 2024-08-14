@@ -317,55 +317,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/health/medical_records/{id}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "This endpoint allows you to delete a medical record by its ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "MedicalRecords"
-                ],
-                "summary": "Delete a medical record by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Medical Record ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/health_analytics.DeleteMedicalRecordResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/health/medical_recordsAdd": {
             "post": {
                 "security": [
@@ -400,6 +351,55 @@ const docTemplate = `{
                         "description": "Accepted",
                         "schema": {
                             "$ref": "#/definitions/health_analytics.AddMedicalRecordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/medical_recordsDel/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint allows you to delete a medical record by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MedicalRecords"
+                ],
+                "summary": "Delete a medical record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Medical Record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/health_analytics.DeleteMedicalRecordResponse"
                         }
                     },
                     "400": {
@@ -1000,6 +1000,11 @@ const docTemplate = `{
         },
         "/user/notifications": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchiga yangi bildirishnoma qo'shish uchun ishlatiladi.",
                 "consumes": [
                     "application/json"
@@ -1046,6 +1051,11 @@ const docTemplate = `{
         },
         "/user/notifications/{user_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchi uchun saqlangan barcha bildirishnomalarni olish uchun ishlatiladi.",
                 "consumes": [
                     "application/json"
@@ -1084,6 +1094,11 @@ const docTemplate = `{
         },
         "/user/notificationsPut": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Foydalanuvchi uchun mavjud bildirishnomani yangilash uchun ishlatiladi.",
                 "consumes": [
                     "application/json"

@@ -509,37 +509,6 @@ paths:
       summary: Turmush tarzi ma'lumotlarini yangilash
       tags:
       - LifestyleData
-  /health/medical_records/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: This endpoint allows you to delete a medical record by its ID.
-      parameters:
-      - description: Medical Record ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-          schema:
-            $ref: '#/definitions/health_analytics.DeleteMedicalRecordResponse'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a medical record by ID
-      tags:
-      - MedicalRecords
   /health/medical_records/user/{userId}:
     get:
       consumes:
@@ -602,6 +571,37 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Add a new medical record
+      tags:
+      - MedicalRecords
+  /health/medical_recordsDel/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint allows you to delete a medical record by its ID.
+      parameters:
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/health_analytics.DeleteMedicalRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a medical record by ID
       tags:
       - MedicalRecords
   /health/medical_recordsGet/{id}:
@@ -1002,6 +1002,8 @@ paths:
           description: Error message
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Foydalanuvchiga yangi bildirishnoma qo'shish
       tags:
       - Notifications
@@ -1028,6 +1030,8 @@ paths:
           description: Error message
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Foydalanuvchi bildirishnomalarini olish
       tags:
       - Notifications
@@ -1058,6 +1062,8 @@ paths:
           description: Error message
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Foydalanuvchi bildirishnomasini yangilash
       tags:
       - Notifications

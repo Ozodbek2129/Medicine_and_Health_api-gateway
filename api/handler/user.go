@@ -14,6 +14,7 @@ import (
 // @Tags         Notifications
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        notifications body user.NotificationsAddRequest true "Notifications Add Request Body"
 // @Success      202 {object} user.NotificationsAddResponse
 // @Failure      400 {object} string "Error message"
@@ -43,6 +44,7 @@ func (h *Handler) NotificationsAdd(c *gin.Context) {
 // @Tags         Notifications
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        user_id   path  string  true  "Foydalanuvchi IDsi"
 // @Success      202 {object} user.NotificationsGetResponse
 // @Failure      500 {object} string "Error message"
@@ -66,8 +68,9 @@ func (h *Handler) NotificationsGet(c *gin.Context){
 // @Tags         Notifications
 // @Accept       json
 // @Produce      json
+// @Security ApiKeyAuth
 // @Param        notifications body user.NotificationsPutRequest true "Notifications Put Request Body"
-// @Success      202 {object} user.NotificationsPutResponse
+// @Success      202 {object} user.NotificationsPutResponse		
 // @Failure      400 {object} string "Error message"
 // @Failure      500 {object} string "Error message"
 // @Router       /user/notificationsPut [put]

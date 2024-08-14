@@ -126,7 +126,7 @@ func (h *Handler) UpdateMedicalRecord(c *gin.Context) {
 // @Success 202 {object} health_analytics.DeleteMedicalRecordResponse
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
-// @Router /health/medical_records/{id} [delete]
+// @Router /health/medical_recordsDel/{id} [delete]
 func (h *Handler) DeleteMedicalRecord(c *gin.Context) {
 	req := pb.DeleteMedicalRecordRequest{
 		Id: c.Param("id"),
